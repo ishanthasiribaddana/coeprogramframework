@@ -805,15 +805,18 @@ function App() {
       <header className="bg-maroon-900 border-b border-maroon-800 sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
-            <div className="flex items-center gap-3">
+            <button 
+              onClick={() => setShowGuide(true)}
+              className="flex items-center gap-3 hover:opacity-80 transition-opacity"
+            >
               <img src="/coe-logo.png" alt="COE Logo" className="h-10 w-10 rounded-lg shadow-lg" />
-              <div>
+              <div className="text-left">
                 <h1 className="text-xl font-bold text-gold-500">
                   COE Program Framework
                 </h1>
                 <p className="text-xs text-maroon-200 hidden sm:block">Center of Excellence - Ananda College</p>
               </div>
-            </div>
+            </button>
             <div className="flex items-center gap-3">
               {/* Database Status Indicator */}
               <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium ${
@@ -917,7 +920,14 @@ function App() {
               <BookOpen size={24} className="text-blue-600" />
             </div>
             <div>
-              <h3 className="font-bold text-gray-800 mb-2">Quick Guide</h3>
+              <h3 className="font-bold text-gray-800 mb-2">
+                <button 
+                  onClick={() => setShowGuide(true)} 
+                  className="text-blue-600 hover:text-blue-800 hover:underline transition-colors"
+                >
+                  Quick Guide →
+                </button>
+              </h3>
               <div className="grid sm:grid-cols-2 gap-3 text-sm text-gray-600">
                 <div className="flex items-center gap-2">
                   <span className="w-2 h-2 rounded-full bg-violet-500"></span>
