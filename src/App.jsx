@@ -50,7 +50,8 @@ const AI_CENTER_DATA = {
       duration: '30-40',
       partnerships: 'MagicBit, Engineers Guild',
       careerGuidance: 'Codegen, Senzmate',
-      associations: ['Information and Communication Technology Unit', "Inventors' Association", 'Robotics Association']
+      associations: ['Information and Communication Technology Unit', "Inventors' Association", 'Robotics Association'],
+      finalized: true
     },
     {
       id: 2,
@@ -59,7 +60,8 @@ const AI_CENTER_DATA = {
       duration: '25-35',
       partnerships: 'RoboticGen, MagicBit',
       careerGuidance: 'IOTex, TechFonist',
-      associations: ['Robotics Association', 'Engineering Technology Association', "Inventors' Association"]
+      associations: ['Robotics Association', 'Engineering Technology Association', "Inventors' Association"],
+      finalized: true
     },
     {
       id: 3,
@@ -68,7 +70,8 @@ const AI_CENTER_DATA = {
       duration: '20-30',
       partnerships: 'Revox, All Digital Specialty',
       careerGuidance: 'ELZIAN AGRO, RagenTec Systems',
-      associations: ['Information and Communication Technology Unit', 'Green Energy Association', 'Engineering Technology Association']
+      associations: ['Information and Communication Technology Unit', 'Green Energy Association', 'Engineering Technology Association'],
+      finalized: true
     },
     {
       id: 4,
@@ -77,7 +80,8 @@ const AI_CENTER_DATA = {
       duration: '25-30',
       partnerships: 'NCinga, MicroImage',
       careerGuidance: 'Calcey, Surge',
-      associations: ['Information and Communication Technology Unit', 'Research and Exploration Society']
+      associations: ['Information and Communication Technology Unit', 'Research and Exploration Society'],
+      finalized: true
     },
     {
       id: 5,
@@ -86,7 +90,8 @@ const AI_CENTER_DATA = {
       duration: '15-20',
       partnerships: 'Zone24',
       careerGuidance: 'Zone24',
-      associations: ['Information and Communication Technology Unit']
+      associations: ['Information and Communication Technology Unit'],
+      finalized: true
     }
   ],
   steamPrograms: [
@@ -97,7 +102,8 @@ const AI_CENTER_DATA = {
       duration: '20-25',
       partnerships: 'MagicBit',
       careerGuidance: 'Codegen',
-      associations: ["Inventors' Association", 'Entrepreneurship Association']
+      associations: ["Inventors' Association", 'Entrepreneurship Association'],
+      finalized: true
     },
     {
       id: 7,
@@ -106,7 +112,8 @@ const AI_CENTER_DATA = {
       duration: '15-20',
       partnerships: 'ELZIAN AGRO',
       careerGuidance: 'ELZIAN AGRO',
-      associations: ['Green Energy Association', 'Research and Exploration Society']
+      associations: ['Green Energy Association', 'Research and Exploration Society'],
+      finalized: true
     },
     {
       id: 8,
@@ -115,7 +122,8 @@ const AI_CENTER_DATA = {
       duration: '20-25',
       partnerships: 'Engineers Guild',
       careerGuidance: 'TechFonist',
-      associations: ['Green Energy Association', 'Engineering Technology Association']
+      associations: ['Green Energy Association', 'Engineering Technology Association'],
+      finalized: true
     }
   ],
   crossCenterPrograms: [
@@ -126,7 +134,8 @@ const AI_CENTER_DATA = {
       duration: '10-15',
       partnerships: '',
       careerGuidance: '',
-      associations: ['Information and Communication Technology Unit']
+      associations: ['Information and Communication Technology Unit'],
+      finalized: true
     },
     {
       id: 10,
@@ -135,7 +144,8 @@ const AI_CENTER_DATA = {
       duration: '10-12',
       partnerships: '',
       careerGuidance: '',
-      associations: ['Information and Communication Technology Unit', 'Research and Exploration Society']
+      associations: ['Information and Communication Technology Unit', 'Research and Exploration Society'],
+      finalized: true
     },
     {
       id: 11,
@@ -144,7 +154,8 @@ const AI_CENTER_DATA = {
       duration: '15-20',
       partnerships: '',
       careerGuidance: '',
-      associations: ['Entrepreneurship Association', "Inventors' Association"]
+      associations: ['Entrepreneurship Association', "Inventors' Association"],
+      finalized: true
     }
   ],
   notes: 'AI Center programs focus on building employment-ready skills in emerging technologies. All programs include hands-on projects and industry mentorship. Duration estimates are per term and may vary based on student progress.'
@@ -160,7 +171,8 @@ const STEAM_HUB_DATA = {
       duration: '30-40',
       partnerships: 'MagicBit, Engineers Guild',
       careerGuidance: 'Codegen',
-      associations: ["Inventors' Association", 'Engineering Technology Association', 'Research and Exploration Society']
+      associations: ["Inventors' Association", 'Engineering Technology Association', 'Research and Exploration Society'],
+      finalized: true
     },
     {
       id: 102,
@@ -169,7 +181,8 @@ const STEAM_HUB_DATA = {
       duration: '25-30',
       partnerships: 'RoboticGen',
       careerGuidance: 'TechFonist',
-      associations: ['Engineering Technology Association', "Inventors' Association"]
+      associations: ['Engineering Technology Association', "Inventors' Association"],
+      finalized: true
     },
     {
       id: 103,
@@ -178,7 +191,8 @@ const STEAM_HUB_DATA = {
       duration: '20-25',
       partnerships: '',
       careerGuidance: '',
-      associations: ['Research and Exploration Society']
+      associations: ['Research and Exploration Society'],
+      finalized: true
     }
   ],
   steamPrograms: [
@@ -189,7 +203,8 @@ const STEAM_HUB_DATA = {
       duration: '35-45',
       partnerships: 'MagicBit, ELZIAN AGRO',
       careerGuidance: 'Senzmate, Calcey',
-      associations: ["Inventors' Association", 'Entrepreneurship Association', 'Green Energy Association']
+      associations: ["Inventors' Association", 'Entrepreneurship Association', 'Green Energy Association'],
+      finalized: true
     },
     {
       id: 105,
@@ -198,7 +213,8 @@ const STEAM_HUB_DATA = {
       duration: '25-30',
       partnerships: 'Engineers Guild',
       careerGuidance: 'ELZIAN AGRO',
-      associations: ['Green Energy Association', 'Research and Exploration Society']
+      associations: ['Green Energy Association', 'Research and Exploration Society'],
+      finalized: true
     },
     {
       id: 106,
@@ -207,7 +223,8 @@ const STEAM_HUB_DATA = {
       duration: '20-25',
       partnerships: '',
       careerGuidance: '',
-      associations: ["Inventors' Association", 'Entrepreneurship Association']
+      associations: ["Inventors' Association", 'Entrepreneurship Association'],
+      finalized: true
     }
   ],
   crossCenterPrograms: [
@@ -218,7 +235,8 @@ const STEAM_HUB_DATA = {
       duration: '20-25',
       partnerships: 'MagicBit',
       careerGuidance: 'Codegen',
-      associations: ['Information and Communication Technology Unit', 'Robotics Association']
+      associations: ['Information and Communication Technology Unit', 'Robotics Association'],
+      finalized: true
     },
     {
       id: 108,
@@ -227,7 +245,8 @@ const STEAM_HUB_DATA = {
       duration: '15-20',
       partnerships: '',
       careerGuidance: '',
-      associations: ['Research and Exploration Society']
+      associations: ['Research and Exploration Society'],
+      finalized: true
     },
     {
       id: 109,
@@ -236,14 +255,18 @@ const STEAM_HUB_DATA = {
       duration: '15-20',
       partnerships: '',
       careerGuidance: '',
-      associations: ['Engineering Technology Association', 'Research and Exploration Society']
+      associations: ['Engineering Technology Association', 'Research and Exploration Society'],
+      finalized: true
     }
   ],
   notes: 'STEAM Hub serves as the integration point for all centers. Projects here combine multiple disciplines and emphasize real-world problem solving. Industry partnerships provide mentorship and potential career pathways.'
 }
 
 // ProgramCard component - moved outside App to prevent re-creation on every render
-const ProgramCard = ({ program, onUpdate, onRemove, showCrossCenter, index, onBlur, isAutoSaving, centerPrefix }) => (
+const ProgramCard = ({ program, onUpdate, onRemove, showCrossCenter, index, onBlur, isAutoSaving, centerPrefix }) => {
+  const isFinalized = program.finalized === true
+  
+  return (
   <div 
     className="group bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-xl hover:border-blue-200 transition-all duration-300 overflow-hidden relative"
     onBlur={(e) => {
@@ -261,13 +284,20 @@ const ProgramCard = ({ program, onUpdate, onRemove, showCrossCenter, index, onBl
       </div>
     )}
     <div className="bg-gradient-to-r from-slate-50 to-gray-50 px-5 py-3 border-b border-gray-100 flex justify-between items-center">
-      <span className="text-sm font-semibold text-gray-500">{centerPrefix ? `${centerPrefix} Program #${index + 1}` : `Program #${index + 1}`}</span>
-      <button
-        onClick={() => onRemove(program.id)}
-        className="opacity-0 group-hover:opacity-100 p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all duration-200"
-      >
-        <Trash2 size={16} />
-      </button>
+      <div className="flex items-center gap-2">
+        <span className="text-sm font-semibold text-gray-500">{centerPrefix ? `${centerPrefix} Program #${index + 1}` : `Program #${index + 1}`}</span>
+        {isFinalized && (
+          <span className="px-2 py-0.5 text-xs font-medium bg-green-100 text-green-700 rounded-full">Finalized</span>
+        )}
+      </div>
+      {!isFinalized && (
+        <button
+          onClick={() => onRemove(program.id)}
+          className="opacity-0 group-hover:opacity-100 p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all duration-200"
+        >
+          <Trash2 size={16} />
+        </button>
+      )}
     </div>
     <div className="p-5 space-y-4">
       <div>
@@ -279,7 +309,8 @@ const ProgramCard = ({ program, onUpdate, onRemove, showCrossCenter, index, onBl
           type="text"
           value={program.module}
           onChange={(e) => onUpdate(program.id, 'module', e.target.value)}
-          className="w-full px-4 py-3 bg-gray-50 border-0 rounded-xl focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all duration-200 text-gray-800 placeholder-gray-400"
+          disabled={isFinalized}
+          className={`w-full px-4 py-3 border-0 rounded-xl transition-all duration-200 text-gray-800 placeholder-gray-400 ${isFinalized ? 'bg-gray-100 cursor-not-allowed' : 'bg-gray-50 focus:ring-2 focus:ring-blue-500 focus:bg-white'}`}
           placeholder="Enter module or project name..."
         />
       </div>
@@ -294,7 +325,8 @@ const ProgramCard = ({ program, onUpdate, onRemove, showCrossCenter, index, onBl
             <select
               value={program.crossCenter}
               onChange={(e) => onUpdate(program.id, 'crossCenter', e.target.value)}
-              className="w-full px-4 py-3 bg-gray-50 border-0 rounded-xl focus:ring-2 focus:ring-purple-500 focus:bg-white transition-all duration-200 text-gray-800 appearance-none cursor-pointer"
+              disabled={isFinalized}
+              className={`w-full px-4 py-3 border-0 rounded-xl transition-all duration-200 text-gray-800 appearance-none ${isFinalized ? 'bg-gray-100 cursor-not-allowed' : 'bg-gray-50 focus:ring-2 focus:ring-purple-500 focus:bg-white cursor-pointer'}`}
             >
               <option value="">Select requesting center...</option>
               {CENTERS.map(center => (
@@ -316,7 +348,8 @@ const ProgramCard = ({ program, onUpdate, onRemove, showCrossCenter, index, onBl
             type="text"
             value={program.duration}
             onChange={(e) => onUpdate(program.id, 'duration', e.target.value)}
-            className="w-full px-4 py-3 bg-gray-50 border-0 rounded-xl focus:ring-2 focus:ring-green-500 focus:bg-white transition-all duration-200 text-gray-800 placeholder-gray-400"
+            disabled={isFinalized}
+            className={`w-full px-4 py-3 border-0 rounded-xl transition-all duration-200 text-gray-800 placeholder-gray-400 ${isFinalized ? 'bg-gray-100 cursor-not-allowed' : 'bg-gray-50 focus:ring-2 focus:ring-green-500 focus:bg-white'}`}
             placeholder="e.g., 20-30"
           />
         </div>
@@ -329,7 +362,8 @@ const ProgramCard = ({ program, onUpdate, onRemove, showCrossCenter, index, onBl
             type="text"
             value={program.partnerships}
             onChange={(e) => onUpdate(program.id, 'partnerships', e.target.value)}
-            className="w-full px-4 py-3 bg-gray-50 border-0 rounded-xl focus:ring-2 focus:ring-orange-500 focus:bg-white transition-all duration-200 text-gray-800 placeholder-gray-400"
+            disabled={isFinalized}
+            className={`w-full px-4 py-3 border-0 rounded-xl transition-all duration-200 text-gray-800 placeholder-gray-400 ${isFinalized ? 'bg-gray-100 cursor-not-allowed' : 'bg-gray-50 focus:ring-2 focus:ring-orange-500 focus:bg-white'}`}
             placeholder="Partner organizations..."
           />
         </div>
@@ -344,7 +378,8 @@ const ProgramCard = ({ program, onUpdate, onRemove, showCrossCenter, index, onBl
           type="text"
           value={program.careerGuidance}
           onChange={(e) => onUpdate(program.id, 'careerGuidance', e.target.value)}
-          className="w-full px-4 py-3 bg-gray-50 border-0 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:bg-white transition-all duration-200 text-gray-800 placeholder-gray-400"
+          disabled={isFinalized}
+          className={`w-full px-4 py-3 border-0 rounded-xl transition-all duration-200 text-gray-800 placeholder-gray-400 ${isFinalized ? 'bg-gray-100 cursor-not-allowed' : 'bg-gray-50 focus:ring-2 focus:ring-indigo-500 focus:bg-white'}`}
           placeholder="Industry placement partners..."
         />
       </div>
@@ -360,16 +395,18 @@ const ProgramCard = ({ program, onUpdate, onRemove, showCrossCenter, index, onBl
               key={assoc}
               type="button"
               onClick={() => {
+                if (isFinalized) return
                 const newAssocs = program.associations.includes(assoc)
                   ? program.associations.filter(a => a !== assoc)
                   : [...program.associations, assoc]
                 onUpdate(program.id, 'associations', newAssocs)
               }}
+              disabled={isFinalized}
               className={`px-3 py-1.5 text-xs font-medium rounded-full transition-all duration-200 ${
                 program.associations.includes(assoc)
                   ? 'bg-gradient-to-r from-pink-500 to-rose-500 text-white shadow-md'
                   : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-              }`}
+              } ${isFinalized ? 'cursor-not-allowed opacity-75' : ''}`}
             >
               {assoc.length > 25 ? assoc.substring(0, 25) + '...' : assoc}
             </button>
@@ -378,10 +415,11 @@ const ProgramCard = ({ program, onUpdate, onRemove, showCrossCenter, index, onBl
       </div>
     </div>
   </div>
-)
+  )
+}
 
 // ProgramSection component - moved outside App
-const ProgramSection = ({ programs, onAdd, onUpdate, onRemove, onCardBlur, autoSavingId, title, description, icon: Icon, color, showCrossCenter = false, centerPrefix }) => (
+const ProgramSection = ({ programs, onAdd, onUpdate, onRemove, onCardBlur, autoSavingId, title, description, icon: Icon, color, showCrossCenter = false, centerPrefix, isFinalized = false }) => (
   <div className="mb-8">
     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
       <div className="flex items-center gap-3">
@@ -393,13 +431,15 @@ const ProgramSection = ({ programs, onAdd, onUpdate, onRemove, onCardBlur, autoS
           <p className="text-sm text-gray-500">{description}</p>
         </div>
       </div>
-      <button
-        onClick={onAdd}
-        className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-maroon-800 to-maroon-900 text-gold-500 rounded-xl font-medium hover:from-maroon-700 hover:to-maroon-800 transition-all duration-200 shadow-md hover:shadow-lg transform hover:-translate-y-0.5 border border-gold-500"
-      >
-        <Plus size={18} />
-        Add Program
-      </button>
+      {!isFinalized && (
+        <button
+          onClick={onAdd}
+          className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-maroon-800 to-maroon-900 text-gold-500 rounded-xl font-medium hover:from-maroon-700 hover:to-maroon-800 transition-all duration-200 shadow-md hover:shadow-lg transform hover:-translate-y-0.5 border border-gold-500"
+        >
+          <Plus size={18} />
+          Add Program
+        </button>
+      )}
     </div>
     <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
       {programs.map((program, idx) => (
@@ -898,6 +938,7 @@ function App() {
             icon={GraduationCap}
             color="from-violet-500 to-purple-600"
             centerPrefix={selectedCenter?.name?.replace(/ (Center|Hub)$/i, '')}
+            isFinalized={centerName === 'AI Center' || centerName === 'STEAM Hub'}
           />
 
           <ProgramSection 
@@ -912,6 +953,7 @@ function App() {
             icon={Zap}
             color="from-orange-500 to-red-600"
             centerPrefix={selectedCenter?.name?.replace(/ (Center|Hub)$/i, '')}
+            isFinalized={centerName === 'AI Center' || centerName === 'STEAM Hub'}
           />
 
           <ProgramSection 
@@ -927,6 +969,7 @@ function App() {
             color="from-emerald-500 to-teal-600"
             showCrossCenter={true}
             centerPrefix={selectedCenter?.name?.replace(/ (Center|Hub)$/i, '')}
+            isFinalized={centerName === 'AI Center' || centerName === 'STEAM Hub'}
           />
         </div>
 
