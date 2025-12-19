@@ -2,10 +2,11 @@ import { useState, useRef, useEffect } from 'react'
 import { 
   Plus, Trash2, FileText, Download, X, Building2, 
   GraduationCap, Zap, ArrowRightLeft, Clock, Users, 
-  Briefcase, BookOpen, ChevronDown, Sparkles, Save, Loader2, CheckCircle, AlertCircle
+  Briefcase, BookOpen, ChevronDown, Sparkles, Save, Loader2, CheckCircle, AlertCircle, HelpCircle
 } from 'lucide-react'
 import './index.css'
 import { programsApi, centersApi, healthCheck } from './api'
+import Guide from './Guide'
 
 const CENTERS = [
   { id: 'ai', name: 'AI Center', icon: '🤖', color: 'from-violet-500 to-purple-600' },
@@ -503,6 +504,7 @@ function App() {
   const [crossCenterPrograms, setCrossCenterPrograms] = useState([emptyProgram()])
   const [notes, setNotes] = useState('')
   const [showReport, setShowReport] = useState(false)
+  const [showGuide, setShowGuide] = useState(false)
   const reportRef = useRef(null)
   
   // Database connection and save states
@@ -792,6 +794,11 @@ function App() {
     printWindow.print()
   }
 
+  // Show Guide page if showGuide is true
+  if (showGuide) {
+    return <Guide onBack={() => setShowGuide(false)} />
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-maroon-50 via-gold-50 to-maroon-100">
       {/* Header */}
@@ -852,6 +859,15 @@ function App() {
               >
                 <FileText size={18} />
                 <span className="hidden sm:inline">Generate Report</span>
+              </button>
+
+              {/* Guide Button */}
+              <button
+                onClick={() => setShowGuide(true)}
+                className="flex items-center gap-2 px-4 py-2.5 bg-maroon-700 text-gold-400 hover:bg-maroon-600 border border-gold-500 rounded-xl font-medium transition-all duration-200 shadow-md hover:shadow-lg"
+              >
+                <HelpCircle size={18} />
+                <span className="hidden sm:inline">Guide</span>
               </button>
             </div>
           </div>
