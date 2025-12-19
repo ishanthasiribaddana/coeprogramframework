@@ -7,7 +7,7 @@ import {
 import './index.css'
 import { programsApi, centersApi, healthCheck } from './api'
 import Guide from './Guide'
-import coeLogo from '/coe-logo.png'
+const coeLogo = import.meta.env.BASE_URL + 'coe-logo.png'
 
 const CENTERS = [
   { id: 'ai', name: 'AI Center', icon: '🤖', color: 'from-violet-500 to-purple-600' },
