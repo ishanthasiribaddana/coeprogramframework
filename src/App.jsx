@@ -7,6 +7,7 @@ import {
 import './index.css'
 import { programsApi, centersApi, healthCheck } from './api'
 import Guide from './Guide'
+import coeLogo from '/coe-logo.png'
 
 const CENTERS = [
   { id: 'ai', name: 'AI Center', icon: '🤖', color: 'from-violet-500 to-purple-600' },
@@ -809,7 +810,7 @@ function App() {
               onClick={() => setShowGuide(true)}
               className="flex items-center gap-3 hover:opacity-80 transition-opacity"
             >
-              <img src="/coeprogramframework/coe-logo.png" alt="COE Logo" className="h-10 w-10 rounded-lg shadow-lg" />
+              <img src={coeLogo} alt="COE Logo" className="h-10 w-10 rounded-lg shadow-lg" />
               <div className="text-left">
                 <h1 className="text-xl font-bold text-gold-500">
                   COE Program Framework
@@ -1061,7 +1062,7 @@ function App() {
       <footer className="mt-16 bg-maroon-900 text-white py-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <div className="flex items-center justify-center gap-3 mb-3">
-            <img src="/coeprogramframework/coe-logo.png" alt="COE Logo" className="h-8 w-8 rounded" />
+            <img src={coeLogo} alt="COE Logo" className="h-8 w-8 rounded" />
             <span className="font-bold text-lg text-gold-500">COE Program Framework</span>
           </div>
           <p className="text-maroon-200 text-sm">Ananda College Center of Excellence</p>
@@ -1074,7 +1075,7 @@ function App() {
           <div className="bg-white rounded-3xl max-w-5xl w-full max-h-[90vh] overflow-hidden shadow-2xl">
             <div className="sticky top-0 bg-maroon-900 backdrop-blur-md border-b border-maroon-800 px-6 py-4 flex justify-between items-center">
               <div className="flex items-center gap-3">
-                <img src="/coeprogramframework/coe-logo.png" alt="COE Logo" className="h-8 w-8 rounded" />
+                <img src={coeLogo} alt="COE Logo" className="h-8 w-8 rounded" />
                 <h2 className="text-xl font-bold text-gold-500">Generated Report</h2>
               </div>
               <div className="flex gap-3">
