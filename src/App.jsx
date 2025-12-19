@@ -243,7 +243,7 @@ const STEAM_HUB_DATA = {
 }
 
 // ProgramCard component - moved outside App to prevent re-creation on every render
-const ProgramCard = ({ program, onUpdate, onRemove, showCrossCenter, index, onBlur, isAutoSaving }) => (
+const ProgramCard = ({ program, onUpdate, onRemove, showCrossCenter, index, onBlur, isAutoSaving, centerPrefix }) => (
   <div 
     className="group bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-xl hover:border-blue-200 transition-all duration-300 overflow-hidden relative"
     onBlur={(e) => {
@@ -261,7 +261,7 @@ const ProgramCard = ({ program, onUpdate, onRemove, showCrossCenter, index, onBl
       </div>
     )}
     <div className="bg-gradient-to-r from-slate-50 to-gray-50 px-5 py-3 border-b border-gray-100 flex justify-between items-center">
-      <span className="text-sm font-semibold text-gray-500">Program #{index + 1}</span>
+      <span className="text-sm font-semibold text-gray-500">{centerPrefix ? `${centerPrefix} Program #${index + 1}` : `Program #${index + 1}`}</span>
       <button
         onClick={() => onRemove(program.id)}
         className="opacity-0 group-hover:opacity-100 p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all duration-200"
@@ -381,7 +381,7 @@ const ProgramCard = ({ program, onUpdate, onRemove, showCrossCenter, index, onBl
 )
 
 // ProgramSection component - moved outside App
-const ProgramSection = ({ programs, onAdd, onUpdate, onRemove, onCardBlur, autoSavingId, title, description, icon: Icon, color, showCrossCenter = false }) => (
+const ProgramSection = ({ programs, onAdd, onUpdate, onRemove, onCardBlur, autoSavingId, title, description, icon: Icon, color, showCrossCenter = false, centerPrefix }) => (
   <div className="mb-8">
     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
       <div className="flex items-center gap-3">
@@ -412,6 +412,7 @@ const ProgramSection = ({ programs, onAdd, onUpdate, onRemove, onCardBlur, autoS
           isAutoSaving={autoSavingId === program.id}
           showCrossCenter={showCrossCenter}
           index={idx}
+          centerPrefix={centerPrefix}
         />
       ))}
     </div>
@@ -896,6 +897,7 @@ function App() {
             description="Employment-ready skills not currently offered"
             icon={GraduationCap}
             color="from-violet-500 to-purple-600"
+            centerPrefix={selectedCenter?.name?.replace(/ (Center|Hub)$/i, '')}
           />
 
           <ProgramSection 
@@ -909,6 +911,7 @@ function App() {
             description="Cross-center integration with STEAM Hub"
             icon={Zap}
             color="from-orange-500 to-red-600"
+            centerPrefix={selectedCenter?.name?.replace(/ (Center|Hub)$/i, '')}
           />
 
           <ProgramSection 
@@ -923,6 +926,7 @@ function App() {
             icon={ArrowRightLeft}
             color="from-emerald-500 to-teal-600"
             showCrossCenter={true}
+            centerPrefix={selectedCenter?.name?.replace(/ (Center|Hub)$/i, '')}
           />
         </div>
 
