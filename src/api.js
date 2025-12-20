@@ -1,5 +1,7 @@
 // API Service for COE Program Framework
-const API_BASE = 'http://localhost:3001/api';
+// Use relative path for production (nginx proxies /api to backend)
+// Use localhost for local development
+const API_BASE = window.location.hostname === 'localhost' ? 'http://localhost:3001/api' : '/api';
 
 // Helper function for API calls
 const apiCall = async (endpoint, options = {}) => {
