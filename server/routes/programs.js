@@ -219,17 +219,30 @@ router.put('/:id', async (req, res) => {
     const { id } = req.params;
     const {
       module_name, description, duration_min_hours, duration_max_hours,
-      partners = [], placements = [], associations = [], cross_center_id
+      partners = [], placements = [], associations = [], cross_center_id, status
     } = req.body;
 
-    // Update program
-    await connection.query(`
-      UPDATE programs SET
-        module_name = ?, description = ?,
-        duration_min_hours = ?, duration_max_hours = ?,
-        updated_at = CURRENT_TIMESTAMP
-      WHERE program_id = ?
-    `, [module_name, description, duration_min_hours, duration_max_hours, id]);
+    // Update program (include status if provided)
+    if (status) {
+      await connection.query(`
+        UPDATE programs SET
+          module_name = COALESCE(?, module_name), 
+          description = COALESCE(?, description),
+          duration_min_hours = COALESCE(?, duration_min_hours), 
+          duration_max_hours = COALESCE(?, duration_max_hours),
+          status = ?,
+          updated_at = CURRENT_TIMESTAMP
+        WHERE program_id = ?
+      `, [module_name, description, duration_min_hours, duration_max_hours, status, id]);
+    } else {
+      await connection.query(`
+        UPDATE programs SET
+          module_name = ?, description = ?,
+          duration_min_hours = ?, duration_max_hours = ?,
+          updated_at = CURRENT_TIMESTAMP
+        WHERE program_id = ?
+      `, [module_name, description, duration_min_hours, duration_max_hours, id]);
+    }
 
     // Clear and re-insert partners
     await connection.query('DELETE FROM program_partners WHERE program_id = ?', [id]);

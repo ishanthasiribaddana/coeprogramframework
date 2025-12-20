@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from 'react'
 import { 
   Plus, Trash2, FileText, Download, X, Building2, 
   GraduationCap, Zap, ArrowRightLeft, Clock, Users, 
-  Briefcase, BookOpen, ChevronDown, Sparkles, Save, Loader2, CheckCircle, AlertCircle, HelpCircle
+  Briefcase, BookOpen, ChevronDown, Sparkles, Save, Loader2, CheckCircle, AlertCircle, HelpCircle, Lock, Unlock, Edit3
 } from 'lucide-react'
 import './index.css'
 import { programsApi, centersApi, healthCheck } from './api'
@@ -514,8 +514,15 @@ function App() {
   const [saveStatus, setSaveStatus] = useState(null) // 'success', 'error', null
   const [loading, setLoading] = useState(false)
   const [autoSavingId, setAutoSavingId] = useState(null) // Track which program is auto-saving
+  const [finalizeUnlocked, setFinalizeUnlocked] = useState(false)
+  const [editUnlocked, setEditUnlocked] = useState(false)
+  const [showPinModal, setShowPinModal] = useState(false)
+  const [pinModalMode, setPinModalMode] = useState('finalize') // 'finalize' or 'edit'
+  const [pinInput, setPinInput] = useState('')
+  const [pinError, setPinError] = useState(false)
 
   const selectedCenter = CENTERS.find(c => c.name === centerName)
+  const FINALIZE_PIN = '0218'
 
   // Check database connection on mount
   useEffect(() => {
@@ -533,49 +540,58 @@ function App() {
 
   // Load saved data from database when center is selected
   const loadCenterData = async (centerIdNum) => {
-    if (!dbConnected) return false
+    if (!dbConnected) {
+      console.log('loadCenterData: DB not connected')
+      return false
+    }
     
     setLoading(true)
     try {
+      console.log('loadCenterData: Loading center', centerIdNum)
       const response = await programsApi.getByCenter(centerIdNum)
+      console.log('loadCenterData: Response', response)
       if (response.success && response.data) {
         const { advanced, steam, crossCenter } = response.data
+        console.log('loadCenterData: Advanced programs', advanced)
         
-        if (advanced && advanced.length > 0) {
-          setAdvancedPrograms(advanced.map(p => ({
-            id: p.program_id,
-            module: p.module_name || '',
-            crossCenter: p.crossCenterRequest?.center_name || '',
-            duration: p.duration_min_hours ? `${p.duration_min_hours}-${p.duration_max_hours}` : '',
-            partnerships: p.partners?.map(pt => pt.partner_name).join(', ') || '',
-            careerGuidance: p.placements?.map(pl => pl.partner_name).join(', ') || '',
-            associations: p.associations?.map(a => a.association_name) || []
-          })))
-        }
+        // Map database programs to local format
+        const mappedAdvanced = advanced ? advanced.map(p => ({
+          id: p.program_id,
+          module: p.module_name || '',
+          crossCenter: p.crossCenterRequest?.center_name || '',
+          duration: p.duration_min_hours ? `${p.duration_min_hours}-${p.duration_max_hours}` : '',
+          partnerships: p.partners?.map(pt => pt.partner_name).join(', ') || '',
+          careerGuidance: p.placements?.map(pl => pl.partner_name).join(', ') || '',
+          associations: p.associations?.map(a => a.association_name) || [],
+          finalized: p.status === 'approved'
+        })) : []
         
-        if (steam && steam.length > 0) {
-          setSteamPrograms(steam.map(p => ({
-            id: p.program_id,
-            module: p.module_name || '',
-            crossCenter: '',
-            duration: p.duration_min_hours ? `${p.duration_min_hours}-${p.duration_max_hours}` : '',
-            partnerships: p.partners?.map(pt => pt.partner_name).join(', ') || '',
-            careerGuidance: p.placements?.map(pl => pl.partner_name).join(', ') || '',
-            associations: p.associations?.map(a => a.association_name) || []
-          })))
-        }
+        const mappedSteam = steam ? steam.map(p => ({
+          id: p.program_id,
+          module: p.module_name || '',
+          crossCenter: '',
+          duration: p.duration_min_hours ? `${p.duration_min_hours}-${p.duration_max_hours}` : '',
+          partnerships: p.partners?.map(pt => pt.partner_name).join(', ') || '',
+          careerGuidance: p.placements?.map(pl => pl.partner_name).join(', ') || '',
+          associations: p.associations?.map(a => a.association_name) || [],
+          finalized: p.status === 'approved'
+        })) : []
         
-        if (crossCenter && crossCenter.length > 0) {
-          setCrossCenterPrograms(crossCenter.map(p => ({
-            id: p.program_id,
-            module: p.module_name || '',
-            crossCenter: p.crossCenterRequest?.center_name || '',
-            duration: p.duration_min_hours ? `${p.duration_min_hours}-${p.duration_max_hours}` : '',
-            partnerships: p.partners?.map(pt => pt.partner_name).join(', ') || '',
-            careerGuidance: p.placements?.map(pl => pl.partner_name).join(', ') || '',
-            associations: p.associations?.map(a => a.association_name) || []
-          })))
-        }
+        const mappedCrossCenter = crossCenter ? crossCenter.map(p => ({
+          id: p.program_id,
+          module: p.module_name || '',
+          crossCenter: p.crossCenterRequest?.center_name || '',
+          duration: p.duration_min_hours ? `${p.duration_min_hours}-${p.duration_max_hours}` : '',
+          partnerships: p.partners?.map(pt => pt.partner_name).join(', ') || '',
+          careerGuidance: p.placements?.map(pl => pl.partner_name).join(', ') || '',
+          associations: p.associations?.map(a => a.association_name) || [],
+          finalized: p.status === 'approved'
+        })) : []
+        
+        // Set programs - only add empty program if no data exists at all
+        setAdvancedPrograms(mappedAdvanced.length > 0 ? mappedAdvanced : [emptyProgram()])
+        setSteamPrograms(mappedSteam.length > 0 ? mappedSteam : [emptyProgram()])
+        setCrossCenterPrograms(mappedCrossCenter.length > 0 ? mappedCrossCenter : [emptyProgram()])
         
         setLoading(false)
         return true
@@ -594,36 +610,55 @@ function App() {
     const centerIndex = CENTERS.findIndex(c => c.name === name) + 1
     setCenterId(centerIndex)
     
-    // Try to load from database first
+    // AI Center and STEAM Hub always use hardcoded finalized data
+    if (name === 'AI Center') {
+      setAdvancedPrograms([...AI_CENTER_DATA.advancedPrograms])
+      setSteamPrograms([...AI_CENTER_DATA.steamPrograms])
+      setCrossCenterPrograms([...AI_CENTER_DATA.crossCenterPrograms])
+      setNotes(AI_CENTER_DATA.notes)
+      return
+    } else if (name === 'STEAM Hub') {
+      setAdvancedPrograms([...STEAM_HUB_DATA.advancedPrograms])
+      setSteamPrograms([...STEAM_HUB_DATA.steamPrograms])
+      setCrossCenterPrograms([...STEAM_HUB_DATA.crossCenterPrograms])
+      setNotes(STEAM_HUB_DATA.notes)
+      return
+    }
+    
+    // For other centers, try to load from database first
     if (dbConnected) {
       const loaded = await loadCenterData(centerIndex)
       if (loaded) return
     }
     
-    // Fall back to sample data or empty
-    if (name === 'AI Center') {
-      setAdvancedPrograms(AI_CENTER_DATA.advancedPrograms)
-      setSteamPrograms(AI_CENTER_DATA.steamPrograms)
-      setCrossCenterPrograms(AI_CENTER_DATA.crossCenterPrograms)
-      setNotes(AI_CENTER_DATA.notes)
-    } else if (name === 'STEAM Hub') {
-      setAdvancedPrograms(STEAM_HUB_DATA.advancedPrograms)
-      setSteamPrograms(STEAM_HUB_DATA.steamPrograms)
-      setCrossCenterPrograms(STEAM_HUB_DATA.crossCenterPrograms)
-      setNotes(STEAM_HUB_DATA.notes)
-    } else {
-      setAdvancedPrograms([emptyProgram()])
-      setSteamPrograms([emptyProgram()])
-      setCrossCenterPrograms([emptyProgram()])
-      setNotes('')
-    }
+    // Fall back to empty programs for other centers
+    setAdvancedPrograms([emptyProgram()])
+    setSteamPrograms([emptyProgram()])
+    setCrossCenterPrograms([emptyProgram()])
+    setNotes('')
   }
 
   // Save all programs to database
   const saveAllData = async () => {
-    if (!dbConnected || !centerId) {
+    if (!centerId) {
       setSaveStatus('error')
       setTimeout(() => setSaveStatus(null), 3000)
+      return
+    }
+    
+    // Don't allow saving AI Center or STEAM Hub - they are finalized
+    if (centerName === 'AI Center' || centerName === 'STEAM Hub') {
+      console.log('AI Center and STEAM Hub programs are finalized and cannot be saved')
+      setSaveStatus('success')
+      setTimeout(() => setSaveStatus(null), 3000)
+      return
+    }
+    
+    // If database is not connected, show error but don't block the UI
+    if (!dbConnected) {
+      setSaveStatus('error')
+      setTimeout(() => setSaveStatus(null), 3000)
+      console.log('Database not connected - save operation skipped')
       return
     }
 
@@ -633,54 +668,72 @@ function App() {
     try {
       // Get program type IDs (1=Advanced, 2=STEAM, 3=Cross Center)
       const programTypeIds = { advanced: 1, steam: 2, crossCenter: 3 }
+      
+      // Helper to check if ID is a database ID (small integer) vs local timestamp ID
+      const isDbId = (id) => typeof id === 'number' && id > 0 && id < 100000
 
-      // Save Advanced Programs
-      for (const program of advancedPrograms) {
-        if (program.module.trim()) {
+      // Collect all programs with DB IDs and local IDs
+      const allPrograms = [
+        ...advancedPrograms.map(p => ({ ...p, programType: 'advanced', programTypeId: 1 })),
+        ...steamPrograms.map(p => ({ ...p, programType: 'steam', programTypeId: 2 })),
+        ...crossCenterPrograms.map(p => ({ ...p, programType: 'crossCenter', programTypeId: 3 }))
+      ]
+      
+      const dbPrograms = allPrograms.filter(p => isDbId(p.id))
+      const localPrograms = allPrograms.filter(p => !isDbId(p.id) && p.module && p.module.trim().length > 0)
+      
+      // Update existing database programs
+      for (const program of dbPrograms) {
+        if (program.module && program.module.trim().length > 0) {
           const [minHours, maxHours] = (program.duration || '0-0').split('-').map(Number)
-          await programsApi.create({
+          const crossCenterIdx = program.programType === 'crossCenter' 
+            ? CENTERS.findIndex(c => c.name === program.crossCenter) + 1 
+            : null
+          const programData = {
             center_id: centerId,
-            program_type_id: programTypeIds.advanced,
+            program_type_id: program.programTypeId,
             module_name: program.module,
             duration_min_hours: minHours || null,
             duration_max_hours: maxHours || null,
-            description: `Partnerships: ${program.partnerships}, Career Guidance: ${program.careerGuidance}`,
-          })
-        }
-      }
-
-      // Save STEAM Programs
-      for (const program of steamPrograms) {
-        if (program.module.trim()) {
-          const [minHours, maxHours] = (program.duration || '0-0').split('-').map(Number)
-          await programsApi.create({
-            center_id: centerId,
-            program_type_id: programTypeIds.steam,
-            module_name: program.module,
-            duration_min_hours: minHours || null,
-            duration_max_hours: maxHours || null,
-            description: `Partnerships: ${program.partnerships}, Career Guidance: ${program.careerGuidance}`,
-          })
-        }
-      }
-
-      // Save Cross Center Programs
-      for (const program of crossCenterPrograms) {
-        if (program.module.trim()) {
-          const [minHours, maxHours] = (program.duration || '0-0').split('-').map(Number)
-          const crossCenterIdx = CENTERS.findIndex(c => c.name === program.crossCenter) + 1
-          await programsApi.create({
-            center_id: centerId,
-            program_type_id: programTypeIds.crossCenter,
-            module_name: program.module,
-            duration_min_hours: minHours || null,
-            duration_max_hours: maxHours || null,
-            description: `Partnerships: ${program.partnerships}, Career Guidance: ${program.careerGuidance}`,
+            description: `Partnerships: ${program.partnerships || ''}, Career Guidance: ${program.careerGuidance || ''}`,
             cross_center_id: crossCenterIdx > 0 ? crossCenterIdx : null,
-          })
+            status: program.finalized ? 'approved' : 'draft',
+          }
+          await programsApi.update(program.id, programData)
         }
       }
-
+      
+      // Create new programs - check each local program to see if it's truly new
+      // A program is new if its module name doesn't match any existing DB program
+      for (const program of localPrograms) {
+        // Check if this module name already exists in DB programs
+        const existsInDb = dbPrograms.some(dbProg => 
+          dbProg.module.trim().toLowerCase() === program.module.trim().toLowerCase() &&
+          dbProg.programTypeId === program.programTypeId
+        )
+        
+        if (!existsInDb) {
+          const [minHours, maxHours] = (program.duration || '0-0').split('-').map(Number)
+          const crossCenterIdx = program.programType === 'crossCenter' 
+            ? CENTERS.findIndex(c => c.name === program.crossCenter) + 1 
+            : null
+          const programData = {
+            center_id: centerId,
+            program_type_id: program.programTypeId,
+            module_name: program.module,
+            duration_min_hours: minHours || null,
+            duration_max_hours: maxHours || null,
+            description: `Partnerships: ${program.partnerships || ''}, Career Guidance: ${program.careerGuidance || ''}`,
+            cross_center_id: crossCenterIdx > 0 ? crossCenterIdx : null,
+            status: program.finalized ? 'approved' : 'draft',
+          }
+          await programsApi.create(programData)
+        }
+      }
+      
+      // Reload data from database to ensure we have correct IDs
+      await loadCenterData(centerId)
+      
       setSaveStatus('success')
       setTimeout(() => setSaveStatus(null), 3000)
     } catch (error) {
@@ -696,8 +749,21 @@ function App() {
     setter(prev => [...prev, emptyProgram()])
   }
 
-  const removeProgram = (setter, id) => {
+  const removeProgram = async (setter, id, programType) => {
+    // Remove from UI immediately
     setter(prev => prev.length > 1 ? prev.filter(p => p.id !== id) : prev)
+    
+    // If connected to database and it's a valid database ID (small integer, not timestamp-based), delete from DB
+    // Database IDs are typically small integers (< 100000), while local IDs are timestamps (> 1700000000000)
+    const isDbId = typeof id === 'number' && id > 0 && id < 100000
+    if (dbConnected && isDbId) {
+      try {
+        await programsApi.delete(id)
+        console.log(`Program ${id} deleted from database`)
+      } catch (error) {
+        console.error('Error deleting program from database:', error)
+      }
+    }
   }
 
   const updateProgram = (setter, id, field, value) => {
@@ -705,48 +771,10 @@ function App() {
   }
 
   // Auto-save a single program when leaving its card
+  // DISABLED - this was causing duplicate records. Use saveAllData instead.
   const autoSaveProgram = async (programId, programType) => {
-    if (!dbConnected || !centerId) return
-
-    // Find the program in the appropriate array
-    let program = null
-    let programTypeId = 1
-    
-    if (programType === 'advanced') {
-      program = advancedPrograms.find(p => p.id === programId)
-      programTypeId = 1
-    } else if (programType === 'steam') {
-      program = steamPrograms.find(p => p.id === programId)
-      programTypeId = 2
-    } else if (programType === 'crossCenter') {
-      program = crossCenterPrograms.find(p => p.id === programId)
-      programTypeId = 3
-    }
-
-    if (!program || !program.module.trim()) return
-
-    setAutoSavingId(programId)
-
-    try {
-      const [minHours, maxHours] = (program.duration || '0-0').split('-').map(Number)
-      const crossCenterIdx = program.crossCenter ? CENTERS.findIndex(c => c.name === program.crossCenter) + 1 : null
-
-      await programsApi.create({
-        center_id: centerId,
-        program_type_id: programTypeId,
-        module_name: program.module,
-        duration_min_hours: minHours || null,
-        duration_max_hours: maxHours || null,
-        description: `Partnerships: ${program.partnerships || ''}, Career Guidance: ${program.careerGuidance || ''}`,
-        cross_center_id: crossCenterIdx > 0 ? crossCenterIdx : null,
-      })
-
-      // Brief success indication
-      setTimeout(() => setAutoSavingId(null), 500)
-    } catch (error) {
-      console.error('Auto-save error:', error)
-      setAutoSavingId(null)
-    }
+    // Do nothing - auto-save is disabled to prevent duplicates
+    return
   }
 
   const generateReport = () => {
@@ -793,6 +821,114 @@ function App() {
     `)
     printWindow.document.close()
     printWindow.print()
+  }
+
+  // Handle PIN verification for finalize or edit
+  const handlePinSubmit = () => {
+    if (pinInput === FINALIZE_PIN) {
+      if (pinModalMode === 'finalize') {
+        setFinalizeUnlocked(true)
+      } else if (pinModalMode === 'edit') {
+        setEditUnlocked(true)
+      }
+      setShowPinModal(false)
+      setPinInput('')
+      setPinError(false)
+    } else {
+      setPinError(true)
+      setPinInput('')
+    }
+  }
+
+  // Finalize all current programs (mark them as finalized)
+  const finalizePrograms = async () => {
+    if (!finalizeUnlocked || !centerName) return
+    
+    // Mark all programs as finalized in local state
+    const finalizedAdvanced = advancedPrograms.map(p => ({ ...p, finalized: true }))
+    const finalizedSteam = steamPrograms.map(p => ({ ...p, finalized: true }))
+    const finalizedCrossCenter = crossCenterPrograms.map(p => ({ ...p, finalized: true }))
+    
+    setAdvancedPrograms(finalizedAdvanced)
+    setSteamPrograms(finalizedSteam)
+    setCrossCenterPrograms(finalizedCrossCenter)
+    
+    // Save finalized state to database directly
+    const programTypeIds = { advanced: 1, steam: 2, crossCenter: 3 }
+    const isDbId = (id) => typeof id === 'number' && id > 0 && id < 100000
+    
+    try {
+      // Update all programs with finalized status
+      for (const program of finalizedAdvanced) {
+        if (program.module.trim() && isDbId(program.id)) {
+          await programsApi.update(program.id, { status: 'approved' })
+        }
+      }
+      for (const program of finalizedSteam) {
+        if (program.module.trim() && isDbId(program.id)) {
+          await programsApi.update(program.id, { status: 'approved' })
+        }
+      }
+      for (const program of finalizedCrossCenter) {
+        if (program.module.trim() && isDbId(program.id)) {
+          await programsApi.update(program.id, { status: 'approved' })
+        }
+      }
+    } catch (error) {
+      console.error('Error saving finalized status:', error)
+    }
+    
+    // Lock finalize button again after use
+    setFinalizeUnlocked(false)
+  }
+
+  // Enable editing of finalized programs (remove finalized flag)
+  const enableEditMode = async () => {
+    if (!editUnlocked || !centerName) return
+    
+    const isDbId = (id) => typeof id === 'number' && id > 0 && id < 100000
+    
+    // Remove finalized flag from all programs (keep IDs intact)
+    const editableAdvanced = advancedPrograms.map(p => ({ ...p, finalized: false }))
+    const editableSteam = steamPrograms.map(p => ({ ...p, finalized: false }))
+    const editableCrossCenter = crossCenterPrograms.map(p => ({ ...p, finalized: false }))
+    
+    setAdvancedPrograms(editableAdvanced)
+    setSteamPrograms(editableSteam)
+    setCrossCenterPrograms(editableCrossCenter)
+    
+    // Update status to draft in database
+    try {
+      for (const program of editableAdvanced) {
+        if (program.module.trim() && isDbId(program.id)) {
+          await programsApi.update(program.id, { status: 'draft' })
+        }
+      }
+      for (const program of editableSteam) {
+        if (program.module.trim() && isDbId(program.id)) {
+          await programsApi.update(program.id, { status: 'draft' })
+        }
+      }
+      for (const program of editableCrossCenter) {
+        if (program.module.trim() && isDbId(program.id)) {
+          await programsApi.update(program.id, { status: 'draft' })
+        }
+      }
+    } catch (error) {
+      console.error('Error updating edit status:', error)
+    }
+    
+    // Lock edit button again after use
+    setEditUnlocked(false)
+    
+    // Automatically unlock finalize button so user can re-finalize after editing
+    setFinalizeUnlocked(true)
+  }
+
+  // Open PIN modal for specific mode
+  const openPinModal = (mode) => {
+    setPinModalMode(mode)
+    setShowPinModal(true)
   }
 
   // Show Guide page if showGuide is true
@@ -957,7 +1093,7 @@ function App() {
             programs={advancedPrograms} 
             onAdd={() => addProgram(setAdvancedPrograms)}
             onUpdate={(id, field, value) => updateProgram(setAdvancedPrograms, id, field, value)}
-            onRemove={(id) => removeProgram(setAdvancedPrograms, id)}
+            onRemove={(id) => removeProgram(setAdvancedPrograms, id, 'advanced')}
             onCardBlur={(id) => autoSaveProgram(id, 'advanced')}
             autoSavingId={autoSavingId}
             title="Advanced Programs" 
@@ -972,7 +1108,7 @@ function App() {
             programs={steamPrograms} 
             onAdd={() => addProgram(setSteamPrograms)}
             onUpdate={(id, field, value) => updateProgram(setSteamPrograms, id, field, value)}
-            onRemove={(id) => removeProgram(setSteamPrograms, id)}
+            onRemove={(id) => removeProgram(setSteamPrograms, id, 'steam')}
             onCardBlur={(id) => autoSaveProgram(id, 'steam')}
             autoSavingId={autoSavingId}
             title="STEAM Programs" 
@@ -987,7 +1123,7 @@ function App() {
             programs={crossCenterPrograms} 
             onAdd={() => addProgram(setCrossCenterPrograms)}
             onUpdate={(id, field, value) => updateProgram(setCrossCenterPrograms, id, field, value)}
-            onRemove={(id) => removeProgram(setCrossCenterPrograms, id)}
+            onRemove={(id) => removeProgram(setCrossCenterPrograms, id, 'crossCenter')}
             onCardBlur={(id) => autoSaveProgram(id, 'crossCenter')}
             autoSavingId={autoSavingId}
             title="Cross Center Programs" 
@@ -1024,7 +1160,7 @@ function App() {
           {/* Save All Button */}
           <button
             onClick={saveAllData}
-            disabled={!centerName || saving || !dbConnected}
+            disabled={!centerName || saving}
             className={`group flex items-center justify-center gap-3 px-10 py-4 rounded-2xl text-lg font-bold transition-all duration-300 shadow-xl hover:shadow-2xl transform hover:-translate-y-1 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none ${
               saveStatus === 'success' 
                 ? 'bg-green-600 text-white border-2 border-green-400' 
@@ -1054,6 +1190,42 @@ function App() {
             <FileText size={24} className="group-hover:rotate-12 transition-transform duration-300" />
             Generate Report
             <Sparkles size={20} className="group-hover:rotate-12 transition-transform duration-300" />
+          </button>
+
+          {/* Finalize Button */}
+          <button
+            onClick={finalizeUnlocked ? finalizePrograms : () => openPinModal('finalize')}
+            disabled={!centerName || (centerName === 'AI Center' || centerName === 'STEAM Hub')}
+            className={`group flex items-center justify-center gap-3 px-10 py-4 rounded-2xl text-lg font-bold transition-all duration-300 shadow-xl hover:shadow-2xl transform hover:-translate-y-1 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none border-2 ${
+              finalizeUnlocked
+                ? 'bg-gradient-to-r from-purple-600 via-purple-700 to-purple-600 text-white border-purple-400 hover:from-purple-500 hover:via-purple-600 hover:to-purple-500'
+                : 'bg-gradient-to-r from-gray-600 via-gray-700 to-gray-600 text-gray-300 border-gray-500 hover:from-gray-500 hover:via-gray-600 hover:to-gray-500'
+            }`}
+          >
+            {finalizeUnlocked ? (
+              <Unlock size={24} className="group-hover:scale-110 transition-transform duration-300" />
+            ) : (
+              <Lock size={24} className="group-hover:scale-110 transition-transform duration-300" />
+            )}
+            {finalizeUnlocked ? 'Finalize Programs' : 'Finalize (Locked)'}
+          </button>
+
+          {/* Edit Button */}
+          <button
+            onClick={editUnlocked ? enableEditMode : () => openPinModal('edit')}
+            disabled={!centerName}
+            className={`group flex items-center justify-center gap-3 px-10 py-4 rounded-2xl text-lg font-bold transition-all duration-300 shadow-xl hover:shadow-2xl transform hover:-translate-y-1 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none border-2 ${
+              editUnlocked
+                ? 'bg-gradient-to-r from-amber-500 via-amber-600 to-amber-500 text-white border-amber-400 hover:from-amber-400 hover:via-amber-500 hover:to-amber-400'
+                : 'bg-gradient-to-r from-gray-600 via-gray-700 to-gray-600 text-gray-300 border-gray-500 hover:from-gray-500 hover:via-gray-600 hover:to-gray-500'
+            }`}
+          >
+            {editUnlocked ? (
+              <Edit3 size={24} className="group-hover:scale-110 transition-transform duration-300" />
+            ) : (
+              <Lock size={24} className="group-hover:scale-110 transition-transform duration-300" />
+            )}
+            {editUnlocked ? 'Enable Editing' : 'Edit (Locked)'}
           </button>
         </div>
       </main>
@@ -1121,6 +1293,88 @@ function App() {
                   <p className="text-amber-900 whitespace-pre-wrap leading-relaxed">{notes}</p>
                 </div>
               )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* PIN Modal */}
+      {showPinModal && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl max-w-md w-full shadow-2xl overflow-hidden">
+            <div className={`px-6 py-4 flex justify-between items-center ${
+              pinModalMode === 'finalize' 
+                ? 'bg-gradient-to-r from-purple-700 to-purple-900' 
+                : 'bg-gradient-to-r from-amber-600 to-amber-800'
+            }`}>
+              <div className="flex items-center gap-3">
+                <Lock size={24} className="text-white/80" />
+                <h2 className="text-xl font-bold text-white">
+                  {pinModalMode === 'finalize' ? 'Unlock Finalize' : 'Unlock Edit Mode'}
+                </h2>
+              </div>
+              <button
+                onClick={() => {
+                  setShowPinModal(false)
+                  setPinInput('')
+                  setPinError(false)
+                }}
+                className="p-2 text-white/60 hover:text-white hover:bg-white/10 rounded-lg transition-colors"
+              >
+                <X size={20} />
+              </button>
+            </div>
+            <div className="p-6">
+              <p className="text-gray-600 mb-4">
+                Enter the 4-digit PIN to unlock the {pinModalMode === 'finalize' ? 'finalize' : 'edit'} function.
+              </p>
+              <input
+                type="password"
+                maxLength={4}
+                value={pinInput}
+                onChange={(e) => {
+                  setPinInput(e.target.value.replace(/\D/g, ''))
+                  setPinError(false)
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') handlePinSubmit()
+                }}
+                placeholder="Enter PIN"
+                className={`w-full px-4 py-3 text-center text-2xl tracking-widest border-2 rounded-xl focus:outline-none focus:ring-2 transition-all ${
+                  pinError 
+                    ? 'border-red-500 focus:ring-red-500 bg-red-50' 
+                    : 'border-gray-300 focus:ring-purple-500 focus:border-purple-500'
+                }`}
+                autoFocus
+              />
+              {pinError && (
+                <p className="text-red-500 text-sm mt-2 text-center">
+                  Incorrect PIN. Please try again.
+                </p>
+              )}
+              <div className="flex gap-3 mt-6">
+                <button
+                  onClick={() => {
+                    setShowPinModal(false)
+                    setPinInput('')
+                    setPinError(false)
+                  }}
+                  className="flex-1 px-4 py-3 bg-gray-200 text-gray-700 rounded-xl font-medium hover:bg-gray-300 transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handlePinSubmit}
+                  disabled={pinInput.length !== 4}
+                  className={`flex-1 px-4 py-3 text-white rounded-xl font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed ${
+                    pinModalMode === 'finalize'
+                      ? 'bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-500 hover:to-purple-600'
+                      : 'bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500'
+                  }`}
+                >
+                  Unlock
+                </button>
+              </div>
             </div>
           </div>
         </div>
