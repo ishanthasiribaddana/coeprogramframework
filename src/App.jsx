@@ -531,17 +531,38 @@ function App() {
         await healthCheck()
         setDbConnected(true)
       } catch (error) {
-        console.log('Database not connected - using local mode')
+        console.log('Database not connected - using localStorage mode')
         setDbConnected(false)
       }
     }
     checkConnection()
   }, [])
 
-  // Load saved data from database when center is selected
+  // localStorage helpers for offline mode
+  const saveToLocalStorage = (centerIdNum, data) => {
+    const key = `coe_programs_center_${centerIdNum}`
+    localStorage.setItem(key, JSON.stringify(data))
+  }
+
+  const loadFromLocalStorage = (centerIdNum) => {
+    const key = `coe_programs_center_${centerIdNum}`
+    const data = localStorage.getItem(key)
+    return data ? JSON.parse(data) : null
+  }
+
+  // Load saved data from database or localStorage when center is selected
   const loadCenterData = async (centerIdNum) => {
     if (!dbConnected) {
-      console.log('loadCenterData: DB not connected')
+      // Try localStorage fallback
+      const localData = loadFromLocalStorage(centerIdNum)
+      if (localData) {
+        console.log('loadCenterData: Loading from localStorage', localData)
+        setAdvancedPrograms(localData.advanced?.length > 0 ? localData.advanced : [emptyProgram()])
+        setSteamPrograms(localData.steam?.length > 0 ? localData.steam : [emptyProgram()])
+        setCrossCenterPrograms(localData.crossCenter?.length > 0 ? localData.crossCenter : [emptyProgram()])
+        return true
+      }
+      console.log('loadCenterData: No localStorage data')
       return false
     }
     
@@ -656,9 +677,15 @@ function App() {
     
     // If database is not connected, show error but don't block the UI
     if (!dbConnected) {
-      setSaveStatus('error')
+      // Save to localStorage when database is not connected
+      saveToLocalStorage(centerId, {
+        advanced: advancedPrograms.filter(p => p.module && p.module.trim()),
+        steam: steamPrograms.filter(p => p.module && p.module.trim()),
+        crossCenter: crossCenterPrograms.filter(p => p.module && p.module.trim())
+      })
+      setSaveStatus('success')
       setTimeout(() => setSaveStatus(null), 3000)
-      console.log('Database not connected - save operation skipped')
+      console.log('Database not connected - saved to localStorage')
       return
     }
 
@@ -738,6 +765,19 @@ function App() {
       setTimeout(() => setSaveStatus(null), 3000)
     } catch (error) {
       console.error('Error saving data:', error)
+      
+      // If database save fails, save to localStorage as fallback
+      if (!dbConnected) {
+        saveToLocalStorage(centerId, {
+          advanced: advancedPrograms.filter(p => p.module && p.module.trim()),
+          steam: steamPrograms.filter(p => p.module && p.module.trim()),
+          crossCenter: crossCenterPrograms.filter(p => p.module && p.module.trim())
+        })
+        setSaveStatus('success')
+        setTimeout(() => setSaveStatus(null), 3000)
+        return
+      }
+      
       setSaveStatus('error')
       setTimeout(() => setSaveStatus(null), 3000)
     } finally {
