@@ -651,12 +651,15 @@ function App() {
     }
     
     // For other centers, try to load from database first
-    if (dbConnected) {
-      const loaded = await loadCenterData(centerIndex)
-      if (loaded) return
+    // Always try to load - loadCenterData handles the dbConnected check internally
+    const loaded = await loadCenterData(centerIndex)
+    if (loaded) {
+      setNotes('')
+      return
     }
     
-    // Fall back to empty programs for other centers
+    // Fall back to empty programs only if load failed
+    console.log('handleCenterSelect: Falling back to empty programs')
     setAdvancedPrograms([emptyProgram()])
     setSteamPrograms([emptyProgram()])
     setCrossCenterPrograms([emptyProgram()])
