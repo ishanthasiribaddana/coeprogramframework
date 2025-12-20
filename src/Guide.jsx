@@ -283,6 +283,67 @@ function Guide({ onBack }) {
           </ol>
         </div>
 
+        {/* Step 7: Save, Finalize & Edit */}
+        <div className="bg-white rounded-2xl shadow-xl border border-gray-100 p-8 mb-8">
+          <div className="flex items-center gap-3 mb-6">
+            <div className="w-10 h-10 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-xl flex items-center justify-center text-white font-bold">7</div>
+            <h3 className="text-xl font-bold text-gray-800">Save, Finalize & Edit Functions</h3>
+          </div>
+          
+          <div className="space-y-6">
+            {/* Save */}
+            <div className="border border-blue-200 rounded-xl p-4 bg-blue-50">
+              <div className="flex items-center gap-2 mb-3">
+                <span className="text-2xl">💾</span>
+                <h4 className="font-semibold text-blue-800">Save All Programs</h4>
+              </div>
+              <ul className="space-y-2 text-blue-700 text-sm">
+                <li>• Click <strong>"Save All Programs"</strong> button to save your work to the database</li>
+                <li>• All program cards with module names will be saved</li>
+                <li>• Empty program cards (without module names) will not be saved</li>
+                <li>• A success message will appear when saved successfully</li>
+              </ul>
+            </div>
+            
+            {/* Finalize */}
+            <div className="border border-green-200 rounded-xl p-4 bg-green-50">
+              <div className="flex items-center gap-2 mb-3">
+                <span className="text-2xl">✅</span>
+                <h4 className="font-semibold text-green-800">Finalize Programs</h4>
+              </div>
+              <ul className="space-y-2 text-green-700 text-sm">
+                <li>• First, click <strong>"Unlock"</strong> button to enable finalization</li>
+                <li>• Enter the <strong>PIN code</strong> when prompted</li>
+                <li>• Click <strong>"Finalize Programs"</strong> to lock all programs</li>
+                <li>• Finalized programs are marked as <strong>"approved"</strong> and cannot be edited</li>
+                <li>• Program cards will show a green checkmark when finalized</li>
+              </ul>
+            </div>
+            
+            {/* Edit */}
+            <div className="border border-amber-200 rounded-xl p-4 bg-amber-50">
+              <div className="flex items-center gap-2 mb-3">
+                <span className="text-2xl">✏️</span>
+                <h4 className="font-semibold text-amber-800">Enable Editing (After Finalization)</h4>
+              </div>
+              <ul className="space-y-2 text-amber-700 text-sm">
+                <li>• If programs are finalized and you need to make changes:</li>
+                <li>• Click <strong>"Unlock"</strong> button</li>
+                <li>• Enter the <strong>PIN code</strong> when prompted</li>
+                <li>• Click <strong>"Enable Editing"</strong> to unlock programs for editing</li>
+                <li>• Programs will return to <strong>"draft"</strong> status</li>
+                <li>• Make your changes and save again</li>
+              </ul>
+            </div>
+          </div>
+          
+          <div className="mt-6 bg-purple-50 border border-purple-200 rounded-xl p-4">
+            <p className="text-purple-800 text-sm">
+              <strong>Important:</strong> The PIN code is required to finalize or enable editing. Contact your administrator if you don't have the PIN.
+            </p>
+          </div>
+        </div>
+
         {/* Tips */}
         <div className="bg-white rounded-2xl shadow-xl border border-gray-100 p-8 mb-8">
           <h3 className="text-xl font-bold text-gray-800 mb-6">Tips for Center Leaders</h3>

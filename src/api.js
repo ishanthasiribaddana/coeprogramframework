@@ -1,7 +1,7 @@
 // API Service for COE Program Framework
-// Use relative path for production (nginx proxies /coe/api to backend)
-// Use localhost for local development
-const API_BASE = window.location.hostname === 'localhost' ? 'http://localhost:3001/api' : '/coe/api';
+// Use remote Contabo server API for both local dev and production
+// This allows local development to work with the production database
+const API_BASE = 'http://144.91.123.164/coe/api';
 
 // Helper function for API calls
 const apiCall = async (endpoint, options = {}) => {
