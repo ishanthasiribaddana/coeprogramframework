@@ -4,5 +4,6 @@ import react from '@vitejs/plugin-react'
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react()],
-  base: '/coeprogramframework/',
+  // Use /coe/ for Contabo server, /coeprogramframework/ for GitHub Pages
+  base: process.env.GITHUB_PAGES ? '/coeprogramframework/' : '/coe/',
 })
