@@ -570,10 +570,10 @@ function App() {
     try {
       console.log('loadCenterData: Loading center', centerIdNum)
       const response = await programsApi.getByCenter(centerIdNum)
-      console.log('loadCenterData: Response', response)
-      if (response.success && response.data) {
+      console.log('loadCenterData: Response', JSON.stringify(response))
+      if (response && response.success && response.data) {
         const { advanced, steam, crossCenter } = response.data
-        console.log('loadCenterData: Advanced programs', advanced)
+        console.log('loadCenterData: Advanced programs count:', advanced?.length || 0)
         
         // Map database programs to local format
         const mappedAdvanced = advanced ? advanced.map(p => ({
@@ -619,6 +619,10 @@ function App() {
       }
     } catch (error) {
       console.error('Error loading center data:', error)
+      // On error, still try to show empty programs
+      setAdvancedPrograms([emptyProgram()])
+      setSteamPrograms([emptyProgram()])
+      setCrossCenterPrograms([emptyProgram()])
     }
     setLoading(false)
     return false
