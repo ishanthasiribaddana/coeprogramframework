@@ -53,17 +53,9 @@ function Guide({ onBack }) {
         {/* Introduction */}
         <div className="bg-white rounded-2xl shadow-xl border border-gray-100 p-8 mb-8">
           <h2 className="text-2xl font-bold text-maroon-900 mb-4">Quick Start Guide for Adding Programs</h2>
-          <p className="text-gray-600 mb-4">
+          <p className="text-gray-600">
             This guide will help center leaders understand how to add and manage program cards in the COE Program Framework application.
           </p>
-          <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
-            <p className="text-blue-800 text-sm">
-              <strong>Application URL:</strong>{' '}
-              <a href="https://ishanthasiribaddana.github.io/coeprogramframework/" className="underline hover:text-blue-600">
-                https://ishanthasiribaddana.github.io/coeprogramframework/
-              </a>
-            </p>
-          </div>
         </div>
 
         {/* Step 1: Select Center */}
