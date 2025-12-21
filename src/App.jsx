@@ -635,20 +635,6 @@ function App() {
     const centerIndex = CENTERS.findIndex(c => c.name === name) + 1
     setCenterId(centerIndex)
     
-    // AI Center and STEAM Hub always use hardcoded finalized data
-    if (name === 'AI Center') {
-      setAdvancedPrograms([...AI_CENTER_DATA.advancedPrograms])
-      setSteamPrograms([...AI_CENTER_DATA.steamPrograms])
-      setCrossCenterPrograms([...AI_CENTER_DATA.crossCenterPrograms])
-      setNotes(AI_CENTER_DATA.notes)
-      return
-    } else if (name === 'STEAM Hub') {
-      setAdvancedPrograms([...STEAM_HUB_DATA.advancedPrograms])
-      setSteamPrograms([...STEAM_HUB_DATA.steamPrograms])
-      setCrossCenterPrograms([...STEAM_HUB_DATA.crossCenterPrograms])
-      setNotes(STEAM_HUB_DATA.notes)
-      return
-    }
     
     // For other centers, try to load from database first
     // Always try to load - loadCenterData handles the dbConnected check internally
@@ -674,13 +660,6 @@ function App() {
       return
     }
     
-    // Don't allow saving AI Center or STEAM Hub - they are finalized
-    if (centerName === 'AI Center' || centerName === 'STEAM Hub') {
-      console.log('AI Center and STEAM Hub programs are finalized and cannot be saved')
-      setSaveStatus('success')
-      setTimeout(() => setSaveStatus(null), 3000)
-      return
-    }
     
     // If database is not connected, show error but don't block the UI
     if (!dbConnected) {
@@ -1144,11 +1123,11 @@ function App() {
             onCardBlur={(id) => autoSaveProgram(id, 'advanced')}
             autoSavingId={autoSavingId}
             title="Advanced Programs" 
-            description="Employment-ready skills not currently offered"
+            description="Programs that build employment-ready skills in demand in the industry. Not currently conducted by the school. Mandatory for all Centers."
             icon={GraduationCap}
             color="from-violet-500 to-purple-600"
             centerPrefix={selectedCenter?.name?.replace(/ (Center|Hub)$/i, '')}
-            isFinalized={centerName === 'AI Center' || centerName === 'STEAM Hub'}
+            isFinalized={false}
           />
 
           <ProgramSection 
@@ -1159,11 +1138,11 @@ function App() {
             onCardBlur={(id) => autoSaveProgram(id, 'steam')}
             autoSavingId={autoSavingId}
             title="STEAM Programs" 
-            description="Cross-center integration with STEAM Hub"
+            description="Programs that integrate across centers to make COE a STEAM education center. Complement projects at STEAM Hub. Mandatory: Science (S), AI (E), Fine Arts (A), Mathematics (M)."
             icon={Zap}
             color="from-orange-500 to-red-600"
             centerPrefix={selectedCenter?.name?.replace(/ (Center|Hub)$/i, '')}
-            isFinalized={centerName === 'AI Center' || centerName === 'STEAM Hub'}
+            isFinalized={false}
           />
 
           <ProgramSection 
@@ -1174,12 +1153,12 @@ function App() {
             onCardBlur={(id) => autoSaveProgram(id, 'crossCenter')}
             autoSavingId={autoSavingId}
             title="Cross Center Programs" 
-            description="Programs requested from other centers"
+            description="Programs requested from other centers to eliminate duplication across COE. Center consultants incorporate these within their specific scope."
             icon={ArrowRightLeft}
             color="from-emerald-500 to-teal-600"
             showCrossCenter={true}
             centerPrefix={selectedCenter?.name?.replace(/ (Center|Hub)$/i, '')}
-            isFinalized={centerName === 'AI Center' || centerName === 'STEAM Hub'}
+            isFinalized={false}
           />
         </div>
 
@@ -1242,7 +1221,7 @@ function App() {
           {/* Finalize Button */}
           <button
             onClick={finalizeUnlocked ? finalizePrograms : () => openPinModal('finalize')}
-            disabled={!centerName || (centerName === 'AI Center' || centerName === 'STEAM Hub')}
+            disabled={!centerName}
             className={`group flex items-center justify-center gap-3 px-10 py-4 rounded-2xl text-lg font-bold transition-all duration-300 shadow-xl hover:shadow-2xl transform hover:-translate-y-1 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none border-2 ${
               finalizeUnlocked
                 ? 'bg-gradient-to-r from-purple-600 via-purple-700 to-purple-600 text-white border-purple-400 hover:from-purple-500 hover:via-purple-600 hover:to-purple-500'

@@ -1,7 +1,6 @@
 // API Service for COE Program Framework
-// Use remote Contabo server API for both local dev and production
-// This allows local development to work with the production database
-const API_BASE = 'http://144.91.123.164/coe/api';
+// Use relative path for API - works with both HTTP and HTTPS
+const API_BASE = '/api';
 
 // Helper function for API calls
 const apiCall = async (endpoint, options = {}) => {

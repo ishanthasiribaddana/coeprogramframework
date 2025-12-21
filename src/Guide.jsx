@@ -113,7 +113,7 @@ function Guide({ onBack }) {
                 <GraduationCap size={20} className="text-violet-600" />
                 <h4 className="font-semibold text-violet-800">1. Advanced Programs</h4>
               </div>
-              <p className="text-violet-700 text-sm">Employment-ready skills not currently offered in the curriculum. Core programs specific to your center.</p>
+              <p className="text-violet-700 text-sm">These are programs that are not currently conducted by the school. These programs should build employment-ready skills that are in demand in the industry. Inclusion of these programs is mandatory for all Centers.</p>
             </div>
             
             <div className="border border-orange-200 rounded-xl p-4 bg-orange-50">
@@ -121,7 +121,7 @@ function Guide({ onBack }) {
                 <span className="text-orange-600">⚡</span>
                 <h4 className="font-semibold text-orange-800">2. STEAM Programs</h4>
               </div>
-              <p className="text-orange-700 text-sm">Cross-center integration with STEAM Hub. Collaborative projects combining multiple disciplines.</p>
+              <p className="text-orange-700 text-sm">This section defines how the COE becomes a STEAM education center through program integration across various centers. These programs should complement projects conducted at the STEAM Hub. Mandatory Centers: Science Center (S), AI Center (E), Fine Arts (A), Mathematics Center (M). Note: These programs may not be applicable to all centers.</p>
             </div>
             
             <div className="border border-emerald-200 rounded-xl p-4 bg-emerald-50">
@@ -129,7 +129,7 @@ function Guide({ onBack }) {
                 <span className="text-emerald-600">↔️</span>
                 <h4 className="font-semibold text-emerald-800">3. Cross Center Programs</h4>
               </div>
-              <p className="text-emerald-700 text-sm">Programs requested from or shared with other centers. Requires selecting the partnering center.</p>
+              <p className="text-emerald-700 text-sm">These are programs requested from other centers. This initiative aims to eliminate the duplication of programs across the COE. Center consultants should incorporate these requests to offer them within their specific scope. Note: These programs may not be applicable to all centers.</p>
             </div>
           </div>
         </div>
