@@ -839,7 +839,7 @@ function App() {
       <body>
         ${printContent}
         <div class="footer">
-          <p>COE Program Framework - Ananda College Center of Excellence</p>
+          <p>STEAM Education Development Framework (SEDF) - Ananda College Center of Excellence</p>
           <p>This report was automatically generated on ${new Date().toLocaleString()}</p>
         </div>
       </body>
@@ -975,7 +975,7 @@ function App() {
               <img src={coeLogo} alt="COE Logo" className="h-10 w-10 rounded-lg shadow-lg" />
               <div className="text-left">
                 <h1 className="text-xl font-bold text-gold-500">
-                  COE Program Framework
+                  STEAM Education Development Framework (SEDF)
                 </h1>
                 <p className="text-xs text-maroon-200 hidden sm:block">Center of Excellence - Ananda College</p>
               </div>
@@ -1261,10 +1261,12 @@ function App() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <div className="flex items-center justify-center gap-3 mb-3">
             <img src={coeLogo} alt="COE Logo" className="h-8 w-8 rounded" />
-            <span className="font-bold text-lg text-gold-500">COE Program Framework</span>
+            <span className="font-bold text-lg text-gold-500">STEAM Education Development Framework (SEDF)</span>
           </div>
           <p className="text-maroon-200 text-sm">Ananda College Center of Excellence</p>
           <p className="text-gold-400 text-xs mt-2">VENI VIDI VICI - Building Future-Ready Students</p>
+          <p className="text-maroon-300 text-xs mt-1">A Project of Old Anandians Professional Forum (OAPF)</p>
+          <p className="text-maroon-400 text-xs mt-2">© 2025 OAPF. All Rights Reserved</p>
         </div>
       </footer>
 
