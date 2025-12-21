@@ -1,23 +1,26 @@
-# COE Program Framework - Progress
+# STEAM Education Development Framework (SEDF) - Progress
 
-## Current Version: v1.0.7
-**Last Updated:** December 20, 2025
+## Current Version: v1.1.0
+**Last Updated:** December 21, 2025
 
 ---
 
 ## Deployment Status
 
 ### Production Server (Contabo)
-- **COE App URL:** http://144.91.123.164/coe/
+- **SEDF App URL (Primary):** https://coe-sedf.oapf.org/
+- **SEDF App URL (IP):** http://144.91.123.164/coe/
 - **Recovery App URL:** http://144.91.123.164/
 - **Server IP:** 144.91.123.164
+- **SSL:** ✅ Let's Encrypt (auto-renews)
 - **Status:** ✅ Live and Running
 
 ### Server Configuration
 - **Backend:** Node.js on port 3001 (PM2 managed)
 - **Database:** MySQL `coe_program_framework`
 - **Web Server:** Nginx (reverse proxy)
-- **Frontend Build:** `/var/www/coe-program-framework/dist`
+- **Frontend Build (IP):** `/var/www/coe-program-framework/dist`
+- **Frontend Build (Subdomain):** `/var/www/coe-subdomain/`
 
 ### Credentials
 - **Finalize/Edit PIN:** 0218
@@ -27,6 +30,19 @@
 ---
 
 ## Completed Features
+
+### v1.1.0 (Dec 21, 2025)
+- **Renamed to STEAM Education Development Framework (SEDF)**
+- Configured SSL certificate for `coe-sedf.oapf.org` subdomain (Let's Encrypt)
+- Fixed API to use relative `/api` path (fixes HTTPS mixed content issue)
+- Enabled editing for AI Center and STEAM Hub (previously read-only)
+- Fixed program cards loading from database instead of hardcoded data
+- Activated Finalize button for AI Center and STEAM Hub
+- Updated program section descriptions from `Three type of programs.txt`
+- Updated Guide page with full program type descriptions
+- Added OAPF logo as favicon
+- Updated footer with OAPF project credit and copyright
+- Deployed separate build for subdomain at `/var/www/coe-subdomain/`
 
 ### v1.0.7 (Dec 20, 2025)
 - Removed Application URL element from Guide page
