@@ -265,12 +265,72 @@ const STEAM_HUB_DATA = {
 }
 
 // ProgramCard component - moved outside App to prevent re-creation on every render
-const ProgramCard = ({ program, onUpdate, onRemove, showCrossCenter, index, onBlur, isAutoSaving, centerPrefix }) => {
+const ProgramCard = ({ program, onUpdate, onRemove, showCrossCenter, index, onBlur, isAutoSaving, centerPrefix, colorTheme = 'blue' }) => {
+  // Color theme configurations - card headers match section icon gradients
+  const themes = {
+    orange: {
+      border: 'hover:border-orange-300',
+      header: 'from-orange-500 to-red-600',
+      headerText: 'text-white',
+      headerBorder: 'border-orange-600',
+      badge: 'bg-white/20 text-white',
+      focusRing: 'focus:ring-orange-500',
+      accent: 'text-orange-500',
+      iconPrimary: 'text-orange-500',
+      iconSecondary: 'text-red-500',
+      inputBg: 'bg-orange-50/50',
+      assocActive: 'from-orange-500 to-red-500',
+      assocInactive: 'bg-orange-50 text-orange-700 hover:bg-orange-100'
+    },
+    violet: {
+      border: 'hover:border-violet-300',
+      header: 'from-violet-500 to-purple-600',
+      headerText: 'text-white',
+      headerBorder: 'border-violet-600',
+      badge: 'bg-white/20 text-white',
+      focusRing: 'focus:ring-violet-500',
+      accent: 'text-violet-500',
+      iconPrimary: 'text-violet-500',
+      iconSecondary: 'text-purple-500',
+      inputBg: 'bg-violet-50/50',
+      assocActive: 'from-violet-500 to-purple-500',
+      assocInactive: 'bg-violet-50 text-violet-700 hover:bg-violet-100'
+    },
+    emerald: {
+      border: 'hover:border-emerald-300',
+      header: 'from-emerald-500 to-teal-600',
+      headerText: 'text-white',
+      headerBorder: 'border-emerald-600',
+      badge: 'bg-white/20 text-white',
+      focusRing: 'focus:ring-emerald-500',
+      accent: 'text-emerald-500',
+      iconPrimary: 'text-emerald-500',
+      iconSecondary: 'text-teal-500',
+      inputBg: 'bg-emerald-50/50',
+      assocActive: 'from-emerald-500 to-teal-500',
+      assocInactive: 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100'
+    },
+    blue: {
+      border: 'hover:border-blue-300',
+      header: 'from-blue-500 to-indigo-600',
+      headerText: 'text-white',
+      headerBorder: 'border-blue-600',
+      badge: 'bg-white/20 text-white',
+      focusRing: 'focus:ring-blue-500',
+      accent: 'text-blue-500',
+      iconPrimary: 'text-blue-500',
+      iconSecondary: 'text-indigo-500',
+      inputBg: 'bg-gray-50',
+      assocActive: 'from-blue-500 to-indigo-500',
+      assocInactive: 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+    }
+  }
+  const theme = themes[colorTheme] || themes.blue
   const isFinalized = program.finalized === true
   
   return (
   <div 
-    className="group bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-xl hover:border-blue-200 transition-all duration-300 overflow-hidden relative"
+    className={`group bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-xl ${theme.border} transition-all duration-300 overflow-hidden relative`}
     onBlur={(e) => {
       // Check if focus is leaving this card entirely (not just moving between inputs within the card)
       if (!e.currentTarget.contains(e.relatedTarget)) {
@@ -285,17 +345,17 @@ const ProgramCard = ({ program, onUpdate, onRemove, showCrossCenter, index, onBl
         Saving...
       </div>
     )}
-    <div className="bg-gradient-to-r from-slate-50 to-gray-50 px-5 py-3 border-b border-gray-100 flex justify-between items-center">
+    <div className={`bg-gradient-to-r ${theme.header} px-5 py-3 border-b ${theme.headerBorder} flex justify-between items-center`}>
       <div className="flex items-center gap-2">
-        <span className="text-sm font-semibold text-gray-500">{centerPrefix ? `${centerPrefix} Program #${index + 1}` : `Program #${index + 1}`}</span>
+        <span className={`text-sm font-semibold ${theme.headerText}`}>{centerPrefix ? `${centerPrefix} Program #${index + 1}` : `Program #${index + 1}`}</span>
         {isFinalized && (
-          <span className="px-2 py-0.5 text-xs font-medium bg-green-100 text-green-700 rounded-full">Finalized</span>
+          <span className={`px-2 py-0.5 text-xs font-medium ${theme.badge} rounded-full`}>Finalized</span>
         )}
       </div>
       {!isFinalized && (
         <button
           onClick={() => onRemove(program.id)}
-          className="opacity-0 group-hover:opacity-100 p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all duration-200"
+          className="opacity-0 group-hover:opacity-100 p-2 text-white/70 hover:text-white hover:bg-white/20 rounded-lg transition-all duration-200"
         >
           <Trash2 size={16} />
         </button>
@@ -304,7 +364,7 @@ const ProgramCard = ({ program, onUpdate, onRemove, showCrossCenter, index, onBl
     <div className="p-5 space-y-4">
       <div>
         <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
-          <BookOpen size={14} className="text-blue-500" />
+          <BookOpen size={14} className={theme.iconPrimary} />
           Project / Module Name
         </label>
         <input
@@ -312,7 +372,7 @@ const ProgramCard = ({ program, onUpdate, onRemove, showCrossCenter, index, onBl
           value={program.module}
           onChange={(e) => onUpdate(program.id, 'module', e.target.value)}
           disabled={isFinalized}
-          className={`w-full px-4 py-3 border-0 rounded-xl transition-all duration-200 text-gray-800 placeholder-gray-400 ${isFinalized ? 'bg-gray-100 cursor-not-allowed' : 'bg-gray-50 focus:ring-2 focus:ring-blue-500 focus:bg-white'}`}
+          className={`w-full px-4 py-3 border-0 rounded-xl transition-all duration-200 text-gray-800 placeholder-gray-400 ${isFinalized ? 'bg-gray-100 cursor-not-allowed' : `${theme.inputBg} focus:ring-2 ${theme.focusRing} focus:bg-white`}`}
           placeholder="Enter module or project name..."
         />
       </div>
@@ -320,7 +380,7 @@ const ProgramCard = ({ program, onUpdate, onRemove, showCrossCenter, index, onBl
       {showCrossCenter && (
         <div>
           <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
-            <ArrowRightLeft size={14} className="text-purple-500" />
+            <ArrowRightLeft size={14} className={theme.iconSecondary} />
             Cross Center
           </label>
           <div className="relative">
@@ -328,7 +388,7 @@ const ProgramCard = ({ program, onUpdate, onRemove, showCrossCenter, index, onBl
               value={program.crossCenter}
               onChange={(e) => onUpdate(program.id, 'crossCenter', e.target.value)}
               disabled={isFinalized}
-              className={`w-full px-4 py-3 border-0 rounded-xl transition-all duration-200 text-gray-800 appearance-none ${isFinalized ? 'bg-gray-100 cursor-not-allowed' : 'bg-gray-50 focus:ring-2 focus:ring-purple-500 focus:bg-white cursor-pointer'}`}
+              className={`w-full px-4 py-3 border-0 rounded-xl transition-all duration-200 text-gray-800 appearance-none ${isFinalized ? 'bg-gray-100 cursor-not-allowed' : `${theme.inputBg} focus:ring-2 ${theme.focusRing} focus:bg-white cursor-pointer`}`}
             >
               <option value="">Select requesting center...</option>
               {CENTERS.map(center => (
@@ -343,7 +403,7 @@ const ProgramCard = ({ program, onUpdate, onRemove, showCrossCenter, index, onBl
       <div className="grid grid-cols-2 gap-4">
         <div>
           <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
-            <Clock size={14} className="text-green-500" />
+            <Clock size={14} className={theme.iconPrimary} />
             Duration (Hours)
           </label>
           <input
@@ -351,13 +411,13 @@ const ProgramCard = ({ program, onUpdate, onRemove, showCrossCenter, index, onBl
             value={program.duration}
             onChange={(e) => onUpdate(program.id, 'duration', e.target.value)}
             disabled={isFinalized}
-            className={`w-full px-4 py-3 border-0 rounded-xl transition-all duration-200 text-gray-800 placeholder-gray-400 ${isFinalized ? 'bg-gray-100 cursor-not-allowed' : 'bg-gray-50 focus:ring-2 focus:ring-green-500 focus:bg-white'}`}
+            className={`w-full px-4 py-3 border-0 rounded-xl transition-all duration-200 text-gray-800 placeholder-gray-400 ${isFinalized ? 'bg-gray-100 cursor-not-allowed' : `${theme.inputBg} focus:ring-2 ${theme.focusRing} focus:bg-white`}`}
             placeholder="e.g., 20-30"
           />
         </div>
         <div>
           <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
-            <Briefcase size={14} className="text-orange-500" />
+            <Briefcase size={14} className={theme.iconSecondary} />
             External Partnerships
           </label>
           <input
@@ -365,7 +425,7 @@ const ProgramCard = ({ program, onUpdate, onRemove, showCrossCenter, index, onBl
             value={program.partnerships}
             onChange={(e) => onUpdate(program.id, 'partnerships', e.target.value)}
             disabled={isFinalized}
-            className={`w-full px-4 py-3 border-0 rounded-xl transition-all duration-200 text-gray-800 placeholder-gray-400 ${isFinalized ? 'bg-gray-100 cursor-not-allowed' : 'bg-gray-50 focus:ring-2 focus:ring-orange-500 focus:bg-white'}`}
+            className={`w-full px-4 py-3 border-0 rounded-xl transition-all duration-200 text-gray-800 placeholder-gray-400 ${isFinalized ? 'bg-gray-100 cursor-not-allowed' : `${theme.inputBg} focus:ring-2 ${theme.focusRing} focus:bg-white`}`}
             placeholder="Partner organizations..."
           />
         </div>
@@ -373,7 +433,7 @@ const ProgramCard = ({ program, onUpdate, onRemove, showCrossCenter, index, onBl
 
       <div>
         <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
-          <GraduationCap size={14} className="text-indigo-500" />
+          <GraduationCap size={14} className={theme.iconPrimary} />
           Career Guidance / Placement
         </label>
         <input
@@ -381,14 +441,14 @@ const ProgramCard = ({ program, onUpdate, onRemove, showCrossCenter, index, onBl
           value={program.careerGuidance}
           onChange={(e) => onUpdate(program.id, 'careerGuidance', e.target.value)}
           disabled={isFinalized}
-          className={`w-full px-4 py-3 border-0 rounded-xl transition-all duration-200 text-gray-800 placeholder-gray-400 ${isFinalized ? 'bg-gray-100 cursor-not-allowed' : 'bg-gray-50 focus:ring-2 focus:ring-indigo-500 focus:bg-white'}`}
+          className={`w-full px-4 py-3 border-0 rounded-xl transition-all duration-200 text-gray-800 placeholder-gray-400 ${isFinalized ? 'bg-gray-100 cursor-not-allowed' : `${theme.inputBg} focus:ring-2 ${theme.focusRing} focus:bg-white`}`}
           placeholder="Industry placement partners..."
         />
       </div>
 
       <div>
         <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
-          <Users size={14} className="text-pink-500" />
+          <Users size={14} className={theme.iconSecondary} />
           Student Associations
         </label>
         <div className="flex flex-wrap gap-2">
@@ -406,8 +466,8 @@ const ProgramCard = ({ program, onUpdate, onRemove, showCrossCenter, index, onBl
               disabled={isFinalized}
               className={`px-3 py-1.5 text-xs font-medium rounded-full transition-all duration-200 ${
                 program.associations.includes(assoc)
-                  ? 'bg-gradient-to-r from-pink-500 to-rose-500 text-white shadow-md'
-                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                  ? `bg-gradient-to-r ${theme.assocActive} text-white shadow-md`
+                  : theme.assocInactive
               } ${isFinalized ? 'cursor-not-allowed opacity-75' : ''}`}
             >
               {assoc.length > 25 ? assoc.substring(0, 25) + '...' : assoc}
@@ -421,7 +481,7 @@ const ProgramCard = ({ program, onUpdate, onRemove, showCrossCenter, index, onBl
 }
 
 // ProgramSection component - moved outside App
-const ProgramSection = ({ programs, onAdd, onUpdate, onRemove, onCardBlur, autoSavingId, title, description, icon: Icon, color, showCrossCenter = false, centerPrefix, isFinalized = false }) => (
+const ProgramSection = ({ programs, onAdd, onUpdate, onRemove, onCardBlur, autoSavingId, title, description, icon: Icon, color, colorTheme = 'blue', showCrossCenter = false, centerPrefix, isFinalized = false }) => (
   <div className="mb-8">
     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
       <div className="flex items-center gap-3">
@@ -455,6 +515,7 @@ const ProgramSection = ({ programs, onAdd, onUpdate, onRemove, onCardBlur, autoS
           showCrossCenter={showCrossCenter}
           index={idx}
           centerPrefix={centerPrefix}
+          colorTheme={colorTheme}
         />
       ))}
     </div>
@@ -1116,21 +1177,6 @@ function App() {
         {/* Program Sections */}
         <div className="space-y-8">
           <ProgramSection 
-            programs={advancedPrograms} 
-            onAdd={() => addProgram(setAdvancedPrograms)}
-            onUpdate={(id, field, value) => updateProgram(setAdvancedPrograms, id, field, value)}
-            onRemove={(id) => removeProgram(setAdvancedPrograms, id, 'advanced')}
-            onCardBlur={(id) => autoSaveProgram(id, 'advanced')}
-            autoSavingId={autoSavingId}
-            title="Advanced Programs" 
-            description="Programs that build employment-ready skills in demand in the industry. Not currently conducted by the school. Mandatory for all Centers."
-            icon={GraduationCap}
-            color="from-violet-500 to-purple-600"
-            centerPrefix={selectedCenter?.name?.replace(/ (Center|Hub)$/i, '')}
-            isFinalized={false}
-          />
-
-          <ProgramSection 
             programs={steamPrograms} 
             onAdd={() => addProgram(setSteamPrograms)}
             onUpdate={(id, field, value) => updateProgram(setSteamPrograms, id, field, value)}
@@ -1141,6 +1187,23 @@ function App() {
             description="Programs that integrate across centers to make COE a STEAM education center. Complement projects at STEAM Hub. Mandatory: Science (S), AI (E), Fine Arts (A), Mathematics (M)."
             icon={Zap}
             color="from-orange-500 to-red-600"
+            colorTheme="orange"
+            centerPrefix={selectedCenter?.name?.replace(/ (Center|Hub)$/i, '')}
+            isFinalized={false}
+          />
+
+          <ProgramSection 
+            programs={advancedPrograms} 
+            onAdd={() => addProgram(setAdvancedPrograms)}
+            onUpdate={(id, field, value) => updateProgram(setAdvancedPrograms, id, field, value)}
+            onRemove={(id) => removeProgram(setAdvancedPrograms, id, 'advanced')}
+            onCardBlur={(id) => autoSaveProgram(id, 'advanced')}
+            autoSavingId={autoSavingId}
+            title="Advanced Programs" 
+            description="Programs that build employment-ready skills in demand in the industry. Not currently conducted by the school. Mandatory for all Centers."
+            icon={GraduationCap}
+            color="from-violet-500 to-purple-600"
+            colorTheme="violet"
             centerPrefix={selectedCenter?.name?.replace(/ (Center|Hub)$/i, '')}
             isFinalized={false}
           />
@@ -1156,6 +1219,7 @@ function App() {
             description="Programs requested from other centers to eliminate duplication across COE. Center consultants incorporate these within their specific scope."
             icon={ArrowRightLeft}
             color="from-emerald-500 to-teal-600"
+            colorTheme="emerald"
             showCrossCenter={true}
             centerPrefix={selectedCenter?.name?.replace(/ (Center|Hub)$/i, '')}
             isFinalized={false}
