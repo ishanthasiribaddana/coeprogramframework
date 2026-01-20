@@ -70,6 +70,10 @@ export const partnersApi = {
 export const associationsApi = {
   getAll: () => apiCall('/organizations/associations'),
   getByCenter: (centerId) => apiCall(`/associations/center/${centerId}`),
+  create: (association) => apiCall('/organizations/associations', {
+    method: 'POST',
+    body: JSON.stringify(association),
+  }),
 };
 
 // Organizations API (new unified endpoint)

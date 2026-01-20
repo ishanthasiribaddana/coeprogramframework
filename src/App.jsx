@@ -265,7 +265,7 @@ const STEAM_HUB_DATA = {
 }
 
 // ProgramCard component - moved outside App to prevent re-creation on every render
-const ProgramCard = ({ program, onUpdate, onRemove, showCrossCenter, index, onBlur, onSave, isAutoSaving, centerPrefix, colorTheme = 'blue', externalPartners = [], placementPartners = [], studentAssociations = [] }) => {
+const ProgramCard = ({ program, onUpdate, onRemove, showCrossCenter, index, onBlur, onSave, isAutoSaving, centerPrefix, colorTheme = 'blue', externalPartners = [], placementPartners = [], studentAssociations = [], onAddNewOrganization }) => {
   // External partnerships autocomplete state
   const [partnershipSearch, setPartnershipSearch] = useState('')
   const [showPartnershipDropdown, setShowPartnershipDropdown] = useState(false)
@@ -298,7 +298,10 @@ const ProgramCard = ({ program, onUpdate, onRemove, showCrossCenter, index, onBl
   )
   
   // Add an external partner
-  const addPartnership = (partnerName) => {
+  const addPartnership = async (partnerName, isNew = false) => {
+    if (isNew && onAddNewOrganization) {
+      await onAddNewOrganization('external', partnerName)
+    }
     const newPartnerships = [...selectedPartnerships, partnerName]
     onUpdate(program.id, 'partnerships', newPartnerships.join(', '))
     setPartnershipSearch('')
@@ -323,7 +326,10 @@ const ProgramCard = ({ program, onUpdate, onRemove, showCrossCenter, index, onBl
   )
   
   // Add a placement partner
-  const addPlacement = (partnerName) => {
+  const addPlacement = async (partnerName, isNew = false) => {
+    if (isNew && onAddNewOrganization) {
+      await onAddNewOrganization('placement', partnerName)
+    }
     const newPlacements = [...selectedPlacements, partnerName]
     onUpdate(program.id, 'careerGuidance', newPlacements.join(', '))
     setPlacementSearch('')
@@ -343,7 +349,10 @@ const ProgramCard = ({ program, onUpdate, onRemove, showCrossCenter, index, onBl
   )
   
   // Add a student association
-  const addAssociation = (associationName) => {
+  const addAssociation = async (associationName, isNew = false) => {
+    if (isNew && onAddNewOrganization) {
+      await onAddNewOrganization('association', associationName)
+    }
     const newAssociations = [...program.associations, associationName]
     onUpdate(program.id, 'associations', newAssociations)
     setAssociationSearch('')
@@ -528,19 +537,30 @@ const ProgramCard = ({ program, onUpdate, onRemove, showCrossCenter, index, onBl
             placeholder="Search external partners..."
           />
           {/* Autocomplete dropdown - show 4 items with scrollbar */}
-          {showPartnershipDropdown && !isFinalized && filteredPartnerships.length > 0 && (
+          {showPartnershipDropdown && !isFinalized && partnershipSearch.trim() && (
             <div className="absolute z-20 w-full mt-1 bg-white border border-gray-200 rounded-xl shadow-lg max-h-40 overflow-y-auto">
-              {filteredPartnerships.map(partner => (
+              {filteredPartnerships.length > 0 ? (
+                filteredPartnerships.map(partner => (
+                  <button
+                    key={partner.partner_id}
+                    type="button"
+                    onClick={() => addPartnership(partner.partner_name)}
+                    className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 first:rounded-t-xl last:rounded-b-xl flex items-center justify-between"
+                  >
+                    <span>{partner.partner_name}</span>
+                    <span className="text-xs text-gray-400">{partner.partner_type}</span>
+                  </button>
+                ))
+              ) : (
                 <button
-                  key={partner.partner_id}
                   type="button"
-                  onClick={() => addPartnership(partner.partner_name)}
-                  className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 first:rounded-t-xl last:rounded-b-xl flex items-center justify-between"
+                  onClick={() => addPartnership(partnershipSearch.trim(), true)}
+                  className="w-full px-4 py-2 text-left text-sm text-green-700 hover:bg-green-50 rounded-xl flex items-center gap-2"
                 >
-                  <span>{partner.partner_name}</span>
-                  <span className="text-xs text-gray-400">{partner.partner_type}</span>
+                  <Plus size={14} />
+                  <span>Add "{partnershipSearch.trim()}" as new partner</span>
                 </button>
-              ))}
+              )}
             </div>
           )}
           {/* Selected external partners tags */}
@@ -593,19 +613,30 @@ const ProgramCard = ({ program, onUpdate, onRemove, showCrossCenter, index, onBl
           placeholder="Search placement partners..."
         />
         {/* Autocomplete dropdown */}
-        {showPlacementDropdown && !isFinalized && filteredPlacements.length > 0 && (
+        {showPlacementDropdown && !isFinalized && placementSearch.trim() && (
           <div className="absolute z-20 w-full mt-1 bg-white border border-gray-200 rounded-xl shadow-lg max-h-48 overflow-y-auto">
-            {filteredPlacements.map(partner => (
+            {filteredPlacements.length > 0 ? (
+              filteredPlacements.map(partner => (
+                <button
+                  key={partner.placement_partner_id}
+                  type="button"
+                  onClick={() => addPlacement(partner.partner_name)}
+                  className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 first:rounded-t-xl last:rounded-b-xl flex items-center justify-between"
+                >
+                  <span>{partner.partner_name}</span>
+                  <span className="text-xs text-gray-400">{partner.industry_sector}</span>
+                </button>
+              ))
+            ) : (
               <button
-                key={partner.placement_partner_id}
                 type="button"
-                onClick={() => addPlacement(partner.partner_name)}
-                className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 first:rounded-t-xl last:rounded-b-xl flex items-center justify-between"
+                onClick={() => addPlacement(placementSearch.trim(), true)}
+                className="w-full px-4 py-2 text-left text-sm text-green-700 hover:bg-green-50 rounded-xl flex items-center gap-2"
               >
-                <span>{partner.partner_name}</span>
-                <span className="text-xs text-gray-400">{partner.industry_sector}</span>
+                <Plus size={14} />
+                <span>Add "{placementSearch.trim()}" as new placement partner</span>
               </button>
-            ))}
+            )}
           </div>
         )}
         {/* Selected placement partners tags */}
@@ -658,19 +689,30 @@ const ProgramCard = ({ program, onUpdate, onRemove, showCrossCenter, index, onBl
           placeholder="Search student associations..."
         />
         {/* Autocomplete dropdown - show 4 items with scrollbar */}
-        {showAssociationDropdown && !isFinalized && filteredAssociations.length > 0 && (
+        {showAssociationDropdown && !isFinalized && associationSearch.trim() && (
           <div className="absolute z-20 w-full mt-1 bg-white border border-gray-200 rounded-xl shadow-lg max-h-40 overflow-y-auto">
-            {filteredAssociations.map(assoc => (
+            {filteredAssociations.length > 0 ? (
+              filteredAssociations.map(assoc => (
+                <button
+                  key={assoc.association_id}
+                  type="button"
+                  onClick={() => addAssociation(assoc.association_name)}
+                  className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 first:rounded-t-xl last:rounded-b-xl flex items-center justify-between"
+                >
+                  <span>{assoc.association_name}</span>
+                  <span className="text-xs text-gray-400">{assoc.association_code}</span>
+                </button>
+              ))
+            ) : (
               <button
-                key={assoc.association_id}
                 type="button"
-                onClick={() => addAssociation(assoc.association_name)}
-                className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 first:rounded-t-xl last:rounded-b-xl flex items-center justify-between"
+                onClick={() => addAssociation(associationSearch.trim(), true)}
+                className="w-full px-4 py-2 text-left text-sm text-green-700 hover:bg-green-50 rounded-xl flex items-center gap-2"
               >
-                <span>{assoc.association_name}</span>
-                <span className="text-xs text-gray-400">{assoc.association_code}</span>
+                <Plus size={14} />
+                <span>Add "{associationSearch.trim()}" as new association</span>
               </button>
-            ))}
+            )}
           </div>
         )}
         {/* Selected student associations tags */}
@@ -735,7 +777,7 @@ const ProgramCard = ({ program, onUpdate, onRemove, showCrossCenter, index, onBl
 }
 
 // ProgramSection component - moved outside App
-const ProgramSection = ({ programs, onAdd, onUpdate, onRemove, onCardBlur, onCardSave, autoSavingId, title, description, icon: Icon, color, colorTheme = 'blue', showCrossCenter = false, centerPrefix, isFinalized = false, externalPartners = [], placementPartners = [], studentAssociations = [] }) => (
+const ProgramSection = ({ programs, onAdd, onUpdate, onRemove, onCardBlur, onCardSave, autoSavingId, title, description, icon: Icon, color, colorTheme = 'blue', showCrossCenter = false, centerPrefix, isFinalized = false, externalPartners = [], placementPartners = [], studentAssociations = [], onAddNewOrganization }) => (
   <div className="mb-8">
     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
       <div className="flex items-center gap-3">
@@ -774,6 +816,7 @@ const ProgramSection = ({ programs, onAdd, onUpdate, onRemove, onCardBlur, onCar
           externalPartners={externalPartners}
           placementPartners={placementPartners}
           studentAssociations={studentAssociations}
+          onAddNewOrganization={onAddNewOrganization}
         />
       ))}
     </div>
@@ -1134,6 +1177,27 @@ function App() {
   }
 
   // Auto-save a single program when leaving its card
+  // Handler to add new organization to database and refresh the list
+  const handleAddNewOrganization = async (type, name) => {
+    try {
+      if (type === 'external') {
+        await partnersApi.createExternal({ partner_name: name })
+        const response = await partnersApi.getExternal()
+        if (response?.success) setExternalPartners(response.data)
+      } else if (type === 'placement') {
+        await partnersApi.createPlacement({ partner_name: name })
+        const response = await partnersApi.getPlacement()
+        if (response?.success) setPlacementPartners(response.data)
+      } else if (type === 'association') {
+        await associationsApi.create({ association_name: name })
+        const response = await associationsApi.getAll()
+        if (response?.success) setStudentAssociations(response.data)
+      }
+    } catch (error) {
+      console.error('Error adding new organization:', error)
+    }
+  }
+
   const autoSaveProgram = async (programId, programType) => {
     if (!dbConnected || !centerId) return
     
@@ -1548,6 +1612,7 @@ function App() {
             externalPartners={externalPartners}
             placementPartners={placementPartners}
             studentAssociations={studentAssociations}
+            onAddNewOrganization={handleAddNewOrganization}
           />
 
           <ProgramSection 
@@ -1568,6 +1633,7 @@ function App() {
             externalPartners={externalPartners}
             placementPartners={placementPartners}
             studentAssociations={studentAssociations}
+            onAddNewOrganization={handleAddNewOrganization}
           />
 
           <ProgramSection 
@@ -1589,6 +1655,7 @@ function App() {
             externalPartners={externalPartners}
             placementPartners={placementPartners}
             studentAssociations={studentAssociations}
+            onAddNewOrganization={handleAddNewOrganization}
           />
         </div>
 
