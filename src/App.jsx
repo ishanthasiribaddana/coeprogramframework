@@ -452,20 +452,37 @@ const ProgramCard = ({ program, onUpdate, onRemove, showCrossCenter, index, onBl
       )}
     </div>
     <div className="p-5 space-y-4">
-      <div>
-        <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
-          <BookOpen size={14} className={theme.iconPrimary} />
-          Project / Module Name
-        </label>
-        <input
-          type="text"
-          value={program.module}
-          onChange={(e) => onUpdate(program.id, 'module', e.target.value)}
-          onBlur={() => onBlur && onBlur(program.id)}
-          disabled={isFinalized}
-          className={`w-full px-4 py-3 border-0 rounded-xl transition-all duration-200 text-gray-800 placeholder-gray-400 ${isFinalized ? 'bg-gray-100 cursor-not-allowed' : `${theme.inputBg} focus:ring-2 ${theme.focusRing} focus:bg-white`}`}
-          placeholder="Enter module or project name..."
-        />
+      <div className="grid grid-cols-3 gap-4">
+        <div className="col-span-2">
+          <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2 whitespace-nowrap">
+            <BookOpen size={14} className={theme.iconPrimary} />
+            Project / Module Name
+          </label>
+          <input
+            type="text"
+            value={program.module}
+            onChange={(e) => onUpdate(program.id, 'module', e.target.value)}
+            onBlur={() => onBlur && onBlur(program.id)}
+            disabled={isFinalized}
+            className={`w-full px-4 py-3 border-0 rounded-xl transition-all duration-200 text-gray-800 placeholder-gray-400 ${isFinalized ? 'bg-gray-100 cursor-not-allowed' : `${theme.inputBg} focus:ring-2 ${theme.focusRing} focus:bg-white`}`}
+            placeholder="Enter module or project name..."
+          />
+        </div>
+        <div className="text-right">
+          <label className="flex items-center justify-end gap-2 text-sm font-medium text-gray-700 mb-2">
+            <Clock size={14} className={theme.iconPrimary} />
+            Dur: (Hrs)
+          </label>
+          <input
+            type="text"
+            value={program.duration}
+            onChange={(e) => onUpdate(program.id, 'duration', e.target.value)}
+            onBlur={() => onBlur && onBlur(program.id)}
+            disabled={isFinalized}
+            className={`w-full px-4 py-3 border-0 rounded-xl transition-all duration-200 text-gray-800 placeholder-gray-400 text-right ${isFinalized ? 'bg-gray-100 cursor-not-allowed' : `${theme.inputBg} focus:ring-2 ${theme.focusRing} focus:bg-white`}`}
+            placeholder="e.g., 20-30"
+          />
+        </div>
       </div>
 
       {showCrossCenter && (
@@ -491,23 +508,7 @@ const ProgramCard = ({ program, onUpdate, onRemove, showCrossCenter, index, onBl
         </div>
       )}
 
-      <div className="grid grid-cols-2 gap-4">
-        <div>
-          <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
-            <Clock size={14} className={theme.iconPrimary} />
-            Duration (Hours)
-          </label>
-          <input
-            type="text"
-            value={program.duration}
-            onChange={(e) => onUpdate(program.id, 'duration', e.target.value)}
-            onBlur={() => onBlur && onBlur(program.id)}
-            disabled={isFinalized}
-            className={`w-full px-4 py-3 border-0 rounded-xl transition-all duration-200 text-gray-800 placeholder-gray-400 ${isFinalized ? 'bg-gray-100 cursor-not-allowed' : `${theme.inputBg} focus:ring-2 ${theme.focusRing} focus:bg-white`}`}
-            placeholder="e.g., 20-30"
-          />
-        </div>
-        <div className="relative">
+      <div className="relative">
           <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
             <Briefcase size={14} className={theme.iconSecondary} />
             External Partnerships
@@ -571,7 +572,6 @@ const ProgramCard = ({ program, onUpdate, onRemove, showCrossCenter, index, onBl
             </div>
           )}
         </div>
-      </div>
 
       <div className="relative">
         <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
