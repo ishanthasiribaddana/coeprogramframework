@@ -52,24 +52,48 @@ export const programsApi = {
   getTypes: () => apiCall('/programs/types/all'),
 };
 
-// Partners API
+// Partners API (uses new organizations endpoint)
 export const partnersApi = {
-  getExternal: () => apiCall('/partners/external'),
-  getPlacement: () => apiCall('/partners/placement'),
-  createExternal: (partner) => apiCall('/partners/external', {
+  getExternal: () => apiCall('/organizations/external'),
+  getPlacement: () => apiCall('/organizations/placement'),
+  createExternal: (partner) => apiCall('/organizations/external', {
     method: 'POST',
     body: JSON.stringify(partner),
   }),
-  createPlacement: (partner) => apiCall('/partners/placement', {
+  createPlacement: (partner) => apiCall('/organizations/placement', {
     method: 'POST',
     body: JSON.stringify(partner),
   }),
 };
 
-// Associations API
+// Associations API (uses new organizations endpoint)
 export const associationsApi = {
-  getAll: () => apiCall('/associations'),
+  getAll: () => apiCall('/organizations/associations'),
   getByCenter: (centerId) => apiCall(`/associations/center/${centerId}`),
+};
+
+// Organizations API (new unified endpoint)
+export const organizationsApi = {
+  getAll: (filters = {}) => {
+    const params = new URLSearchParams(filters).toString();
+    return apiCall(`/organizations${params ? `?${params}` : ''}`);
+  },
+  getTypes: () => apiCall('/organizations/types'),
+  getById: (id) => apiCall(`/organizations/${id}`),
+  getExternal: () => apiCall('/organizations/external'),
+  getPlacement: () => apiCall('/organizations/placement'),
+  getAssociations: () => apiCall('/organizations/associations'),
+  create: (org) => apiCall('/organizations', {
+    method: 'POST',
+    body: JSON.stringify(org),
+  }),
+  update: (id, org) => apiCall(`/organizations/${id}`, {
+    method: 'PUT',
+    body: JSON.stringify(org),
+  }),
+  delete: (id) => apiCall(`/organizations/${id}`, {
+    method: 'DELETE',
+  }),
 };
 
 // Submissions API
@@ -101,6 +125,7 @@ export default {
   programs: programsApi,
   partners: partnersApi,
   associations: associationsApi,
+  organizations: organizationsApi,
   submissions: submissionsApi,
   healthCheck,
 };

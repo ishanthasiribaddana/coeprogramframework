@@ -5,7 +5,7 @@ import {
   Briefcase, BookOpen, ChevronDown, Sparkles, Save, Loader2, CheckCircle, AlertCircle, HelpCircle, Lock, Unlock, Edit3
 } from 'lucide-react'
 import './index.css'
-import { programsApi, centersApi, healthCheck } from './api'
+import { programsApi, centersApi, healthCheck, partnersApi, associationsApi } from './api'
 import Guide from './Guide'
 const coeLogo = import.meta.env.BASE_URL + 'coe-logo.png'
 
@@ -265,7 +265,97 @@ const STEAM_HUB_DATA = {
 }
 
 // ProgramCard component - moved outside App to prevent re-creation on every render
-const ProgramCard = ({ program, onUpdate, onRemove, showCrossCenter, index, onBlur, isAutoSaving, centerPrefix, colorTheme = 'blue' }) => {
+const ProgramCard = ({ program, onUpdate, onRemove, showCrossCenter, index, onBlur, onSave, isAutoSaving, centerPrefix, colorTheme = 'blue', externalPartners = [], placementPartners = [], studentAssociations = [] }) => {
+  // External partnerships autocomplete state
+  const [partnershipSearch, setPartnershipSearch] = useState('')
+  const [showPartnershipDropdown, setShowPartnershipDropdown] = useState(false)
+  const partnershipInputRef = useRef(null)
+  
+  const [placementSearch, setPlacementSearch] = useState('')
+  const [showPlacementDropdown, setShowPlacementDropdown] = useState(false)
+  const placementInputRef = useRef(null)
+  
+  const [associationSearch, setAssociationSearch] = useState('')
+  const [showAssociationDropdown, setShowAssociationDropdown] = useState(false)
+  const associationInputRef = useRef(null)
+  
+  // Check if all required fields are filled
+  const isFormComplete = program.module?.trim() && 
+    program.duration?.trim() && 
+    program.partnerships?.trim() && 
+    program.careerGuidance?.trim() && 
+    program.associations?.length > 0
+  
+  // Parse partnerships string to array for selected external partners
+  const selectedPartnerships = program.partnerships 
+    ? program.partnerships.split(',').map(p => p.trim()).filter(p => p)
+    : []
+  
+  // Filter external partners based on search
+  const filteredPartnerships = externalPartners.filter(partner => 
+    partner.partner_name.toLowerCase().includes(partnershipSearch.toLowerCase()) &&
+    !selectedPartnerships.includes(partner.partner_name)
+  )
+  
+  // Add an external partner
+  const addPartnership = (partnerName) => {
+    const newPartnerships = [...selectedPartnerships, partnerName]
+    onUpdate(program.id, 'partnerships', newPartnerships.join(', '))
+    setPartnershipSearch('')
+    setShowPartnershipDropdown(false)
+  }
+  
+  // Remove an external partner
+  const removePartnership = (partnerName) => {
+    const newPartnerships = selectedPartnerships.filter(p => p !== partnerName)
+    onUpdate(program.id, 'partnerships', newPartnerships.join(', '))
+  }
+  
+  // Parse careerGuidance string to array for selected partners
+  const selectedPlacements = program.careerGuidance 
+    ? program.careerGuidance.split(',').map(p => p.trim()).filter(p => p)
+    : []
+  
+  // Filter placement partners based on search
+  const filteredPlacements = placementPartners.filter(partner => 
+    partner.partner_name.toLowerCase().includes(placementSearch.toLowerCase()) &&
+    !selectedPlacements.includes(partner.partner_name)
+  )
+  
+  // Add a placement partner
+  const addPlacement = (partnerName) => {
+    const newPlacements = [...selectedPlacements, partnerName]
+    onUpdate(program.id, 'careerGuidance', newPlacements.join(', '))
+    setPlacementSearch('')
+    setShowPlacementDropdown(false)
+  }
+  
+  // Remove a placement partner
+  const removePlacement = (partnerName) => {
+    const newPlacements = selectedPlacements.filter(p => p !== partnerName)
+    onUpdate(program.id, 'careerGuidance', newPlacements.join(', '))
+  }
+  
+  // Filter student associations based on search
+  const filteredAssociations = studentAssociations.filter(assoc => 
+    assoc.association_name.toLowerCase().includes(associationSearch.toLowerCase()) &&
+    !program.associations.includes(assoc.association_name)
+  )
+  
+  // Add a student association
+  const addAssociation = (associationName) => {
+    const newAssociations = [...program.associations, associationName]
+    onUpdate(program.id, 'associations', newAssociations)
+    setAssociationSearch('')
+    setShowAssociationDropdown(false)
+  }
+  
+  // Remove a student association
+  const removeAssociation = (associationName) => {
+    const newAssociations = program.associations.filter(a => a !== associationName)
+    onUpdate(program.id, 'associations', newAssociations)
+  }
+
   // Color theme configurations - card headers match section icon gradients
   const themes = {
     orange: {
@@ -330,7 +420,7 @@ const ProgramCard = ({ program, onUpdate, onRemove, showCrossCenter, index, onBl
   
   return (
   <div 
-    className={`group bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-xl ${theme.border} transition-all duration-300 overflow-hidden relative`}
+    className={`group bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-xl ${theme.border} transition-all duration-300 overflow-visible relative`}
     onBlur={(e) => {
       // Check if focus is leaving this card entirely (not just moving between inputs within the card)
       if (!e.currentTarget.contains(e.relatedTarget)) {
@@ -371,6 +461,7 @@ const ProgramCard = ({ program, onUpdate, onRemove, showCrossCenter, index, onBl
           type="text"
           value={program.module}
           onChange={(e) => onUpdate(program.id, 'module', e.target.value)}
+          onBlur={() => onBlur && onBlur(program.id)}
           disabled={isFinalized}
           className={`w-full px-4 py-3 border-0 rounded-xl transition-all duration-200 text-gray-800 placeholder-gray-400 ${isFinalized ? 'bg-gray-100 cursor-not-allowed' : `${theme.inputBg} focus:ring-2 ${theme.focusRing} focus:bg-white`}`}
           placeholder="Enter module or project name..."
@@ -410,78 +501,241 @@ const ProgramCard = ({ program, onUpdate, onRemove, showCrossCenter, index, onBl
             type="text"
             value={program.duration}
             onChange={(e) => onUpdate(program.id, 'duration', e.target.value)}
+            onBlur={() => onBlur && onBlur(program.id)}
             disabled={isFinalized}
             className={`w-full px-4 py-3 border-0 rounded-xl transition-all duration-200 text-gray-800 placeholder-gray-400 ${isFinalized ? 'bg-gray-100 cursor-not-allowed' : `${theme.inputBg} focus:ring-2 ${theme.focusRing} focus:bg-white`}`}
             placeholder="e.g., 20-30"
           />
         </div>
-        <div>
+        <div className="relative">
           <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
             <Briefcase size={14} className={theme.iconSecondary} />
             External Partnerships
           </label>
           <input
+            ref={partnershipInputRef}
             type="text"
-            value={program.partnerships}
-            onChange={(e) => onUpdate(program.id, 'partnerships', e.target.value)}
+            value={partnershipSearch}
+            onChange={(e) => {
+              setPartnershipSearch(e.target.value)
+              setShowPartnershipDropdown(true)
+            }}
+            onFocus={() => setShowPartnershipDropdown(true)}
+            onBlur={() => setTimeout(() => setShowPartnershipDropdown(false), 200)}
             disabled={isFinalized}
             className={`w-full px-4 py-3 border-0 rounded-xl transition-all duration-200 text-gray-800 placeholder-gray-400 ${isFinalized ? 'bg-gray-100 cursor-not-allowed' : `${theme.inputBg} focus:ring-2 ${theme.focusRing} focus:bg-white`}`}
-            placeholder="Partner organizations..."
+            placeholder="Search external partners..."
           />
+          {/* Autocomplete dropdown - show 4 items with scrollbar */}
+          {showPartnershipDropdown && !isFinalized && filteredPartnerships.length > 0 && (
+            <div className="absolute z-20 w-full mt-1 bg-white border border-gray-200 rounded-xl shadow-lg max-h-40 overflow-y-auto">
+              {filteredPartnerships.map(partner => (
+                <button
+                  key={partner.partner_id}
+                  type="button"
+                  onClick={() => addPartnership(partner.partner_name)}
+                  className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 first:rounded-t-xl last:rounded-b-xl flex items-center justify-between"
+                >
+                  <span>{partner.partner_name}</span>
+                  <span className="text-xs text-gray-400">{partner.partner_type}</span>
+                </button>
+              ))}
+            </div>
+          )}
+          {/* Selected external partners tags */}
+          {selectedPartnerships.length > 0 && (
+            <div className="mt-3">
+              <label className="flex items-center gap-2 text-xs font-medium text-gray-500 mb-2">
+                <Briefcase size={12} />
+                Selected Partners
+              </label>
+              <div className="flex flex-wrap gap-2">
+                {selectedPartnerships.map(partner => (
+                  <span
+                    key={partner}
+                    className={`inline-flex items-center gap-1 px-3 py-1 text-xs font-medium rounded-full bg-gradient-to-r ${theme.assocActive} text-white shadow-sm`}
+                  >
+                    {partner}
+                    {!isFinalized && (
+                      <button
+                        type="button"
+                        onClick={() => removePartnership(partner)}
+                        className="ml-1 hover:bg-white/20 rounded-full p-0.5"
+                      >
+                        <X size={12} />
+                      </button>
+                    )}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
-      <div>
+      <div className="relative">
         <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
           <GraduationCap size={14} className={theme.iconPrimary} />
           Career Guidance / Placement
         </label>
         <input
+          ref={placementInputRef}
           type="text"
-          value={program.careerGuidance}
-          onChange={(e) => onUpdate(program.id, 'careerGuidance', e.target.value)}
+          value={placementSearch}
+          onChange={(e) => {
+            setPlacementSearch(e.target.value)
+            setShowPlacementDropdown(true)
+          }}
+          onFocus={() => setShowPlacementDropdown(true)}
+          onBlur={() => setTimeout(() => setShowPlacementDropdown(false), 200)}
           disabled={isFinalized}
           className={`w-full px-4 py-3 border-0 rounded-xl transition-all duration-200 text-gray-800 placeholder-gray-400 ${isFinalized ? 'bg-gray-100 cursor-not-allowed' : `${theme.inputBg} focus:ring-2 ${theme.focusRing} focus:bg-white`}`}
-          placeholder="Industry placement partners..."
+          placeholder="Search placement partners..."
         />
+        {/* Autocomplete dropdown */}
+        {showPlacementDropdown && !isFinalized && filteredPlacements.length > 0 && (
+          <div className="absolute z-20 w-full mt-1 bg-white border border-gray-200 rounded-xl shadow-lg max-h-48 overflow-y-auto">
+            {filteredPlacements.map(partner => (
+              <button
+                key={partner.placement_partner_id}
+                type="button"
+                onClick={() => addPlacement(partner.partner_name)}
+                className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 first:rounded-t-xl last:rounded-b-xl flex items-center justify-between"
+              >
+                <span>{partner.partner_name}</span>
+                <span className="text-xs text-gray-400">{partner.industry_sector}</span>
+              </button>
+            ))}
+          </div>
+        )}
+        {/* Selected placement partners tags */}
+        {selectedPlacements.length > 0 && (
+          <div className="mt-3">
+            <label className="flex items-center gap-2 text-xs font-medium text-gray-500 mb-2">
+              <Briefcase size={12} />
+              Selected Placement Partners
+            </label>
+            <div className="flex flex-wrap gap-2">
+              {selectedPlacements.map(partner => (
+                <span
+                  key={partner}
+                  className={`inline-flex items-center gap-1 px-3 py-1 text-xs font-medium rounded-full bg-gradient-to-r ${theme.assocActive} text-white shadow-sm`}
+                >
+                  {partner}
+                  {!isFinalized && (
+                    <button
+                      type="button"
+                      onClick={() => removePlacement(partner)}
+                      className="ml-1 hover:bg-white/20 rounded-full p-0.5"
+                    >
+                      <X size={12} />
+                    </button>
+                  )}
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
 
-      <div>
+      <div className="relative">
         <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
           <Users size={14} className={theme.iconSecondary} />
           Student Associations
         </label>
-        <div className="flex flex-wrap gap-2">
-          {STUDENT_ASSOCIATIONS.map(assoc => (
-            <button
-              key={assoc}
-              type="button"
-              onClick={() => {
-                if (isFinalized) return
-                const newAssocs = program.associations.includes(assoc)
-                  ? program.associations.filter(a => a !== assoc)
-                  : [...program.associations, assoc]
-                onUpdate(program.id, 'associations', newAssocs)
-              }}
-              disabled={isFinalized}
-              className={`px-3 py-1.5 text-xs font-medium rounded-full transition-all duration-200 ${
-                program.associations.includes(assoc)
-                  ? `bg-gradient-to-r ${theme.assocActive} text-white shadow-md`
-                  : theme.assocInactive
-              } ${isFinalized ? 'cursor-not-allowed opacity-75' : ''}`}
-            >
-              {assoc.length > 25 ? assoc.substring(0, 25) + '...' : assoc}
-            </button>
-          ))}
-        </div>
+        <input
+          ref={associationInputRef}
+          type="text"
+          value={associationSearch}
+          onChange={(e) => {
+            setAssociationSearch(e.target.value)
+            setShowAssociationDropdown(true)
+          }}
+          onFocus={() => setShowAssociationDropdown(true)}
+          onBlur={() => setTimeout(() => setShowAssociationDropdown(false), 200)}
+          disabled={isFinalized}
+          className={`w-full px-4 py-3 border-0 rounded-xl transition-all duration-200 text-gray-800 placeholder-gray-400 ${isFinalized ? 'bg-gray-100 cursor-not-allowed' : `${theme.inputBg} focus:ring-2 ${theme.focusRing} focus:bg-white`}`}
+          placeholder="Search student associations..."
+        />
+        {/* Autocomplete dropdown - show 4 items with scrollbar */}
+        {showAssociationDropdown && !isFinalized && filteredAssociations.length > 0 && (
+          <div className="absolute z-20 w-full mt-1 bg-white border border-gray-200 rounded-xl shadow-lg max-h-40 overflow-y-auto">
+            {filteredAssociations.map(assoc => (
+              <button
+                key={assoc.association_id}
+                type="button"
+                onClick={() => addAssociation(assoc.association_name)}
+                className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 first:rounded-t-xl last:rounded-b-xl flex items-center justify-between"
+              >
+                <span>{assoc.association_name}</span>
+                <span className="text-xs text-gray-400">{assoc.association_code}</span>
+              </button>
+            ))}
+          </div>
+        )}
+        {/* Selected student associations tags */}
+        {program.associations.length > 0 && (
+          <div className="mt-3">
+            <label className="flex items-center gap-2 text-xs font-medium text-gray-500 mb-2">
+              <Users size={12} />
+              Selected Student Associations
+            </label>
+            <div className="flex flex-wrap gap-2">
+              {program.associations.map(assoc => (
+                <span
+                  key={assoc}
+                  className={`inline-flex items-center gap-1 px-3 py-1 text-xs font-medium rounded-full bg-gradient-to-r ${theme.assocActive} text-white shadow-sm`}
+                >
+                  {assoc.length > 30 ? assoc.substring(0, 30) + '...' : assoc}
+                  {!isFinalized && (
+                    <button
+                      type="button"
+                      onClick={() => removeAssociation(assoc)}
+                      className="ml-1 hover:bg-white/20 rounded-full p-0.5"
+                    >
+                      <X size={12} />
+                    </button>
+                  )}
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
+      
+      {/* Save Button */}
+      {!isFinalized && (
+        <div className="px-5 pb-5">
+          <button
+            onClick={() => onSave && onSave(program.id)}
+            disabled={!isFormComplete || isAutoSaving}
+            className={`w-full py-3 rounded-xl font-medium transition-all duration-200 flex items-center justify-center gap-2 ${
+              isFormComplete && !isAutoSaving
+                ? `bg-gradient-to-r ${theme.header} text-white hover:shadow-lg transform hover:-translate-y-0.5`
+                : 'bg-gray-100 text-gray-400 cursor-not-allowed'
+            }`}
+          >
+            {isAutoSaving ? (
+              <>
+                <Loader2 size={16} className="animate-spin" />
+                Saving...
+              </>
+            ) : (
+              <>
+                <Save size={16} />
+                {isFormComplete ? 'Save Program' : 'Complete all fields to save'}
+              </>
+            )}
+          </button>
+        </div>
+      )}
     </div>
   </div>
   )
 }
 
 // ProgramSection component - moved outside App
-const ProgramSection = ({ programs, onAdd, onUpdate, onRemove, onCardBlur, autoSavingId, title, description, icon: Icon, color, colorTheme = 'blue', showCrossCenter = false, centerPrefix, isFinalized = false }) => (
+const ProgramSection = ({ programs, onAdd, onUpdate, onRemove, onCardBlur, onCardSave, autoSavingId, title, description, icon: Icon, color, colorTheme = 'blue', showCrossCenter = false, centerPrefix, isFinalized = false, externalPartners = [], placementPartners = [], studentAssociations = [] }) => (
   <div className="mb-8">
     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
       <div className="flex items-center gap-3">
@@ -511,11 +765,15 @@ const ProgramSection = ({ programs, onAdd, onUpdate, onRemove, onCardBlur, autoS
           onUpdate={onUpdate}
           onRemove={onRemove}
           onBlur={onCardBlur}
+          onSave={onCardSave}
           isAutoSaving={autoSavingId === program.id}
           showCrossCenter={showCrossCenter}
           index={idx}
           centerPrefix={centerPrefix}
           colorTheme={colorTheme}
+          externalPartners={externalPartners}
+          placementPartners={placementPartners}
+          studentAssociations={studentAssociations}
         />
       ))}
     </div>
@@ -575,6 +833,9 @@ function App() {
   const [saveStatus, setSaveStatus] = useState(null) // 'success', 'error', null
   const [loading, setLoading] = useState(false)
   const [autoSavingId, setAutoSavingId] = useState(null) // Track which program is auto-saving
+  const [externalPartners, setExternalPartners] = useState([]) // External partners for autocomplete
+  const [placementPartners, setPlacementPartners] = useState([]) // Placement partners for autocomplete
+  const [studentAssociations, setStudentAssociations] = useState([]) // Student associations for autocomplete
   const [finalizeUnlocked, setFinalizeUnlocked] = useState(false)
   const [editUnlocked, setEditUnlocked] = useState(false)
   const [showPinModal, setShowPinModal] = useState(false)
@@ -585,12 +846,27 @@ function App() {
   const selectedCenter = CENTERS.find(c => c.name === centerName)
   const FINALIZE_PIN = '0218'
 
-  // Check database connection on mount
+  // Check database connection and fetch placement partners on mount
   useEffect(() => {
     const checkConnection = async () => {
       try {
         await healthCheck()
         setDbConnected(true)
+        // Fetch external partners for autocomplete
+        const externalResponse = await partnersApi.getExternal()
+        if (externalResponse?.success && externalResponse?.data) {
+          setExternalPartners(externalResponse.data)
+        }
+        // Fetch placement partners for autocomplete
+        const partnersResponse = await partnersApi.getPlacement()
+        if (partnersResponse?.success && partnersResponse?.data) {
+          setPlacementPartners(partnersResponse.data)
+        }
+        // Fetch student associations for autocomplete
+        const associationsResponse = await associationsApi.getAll()
+        if (associationsResponse?.success && associationsResponse?.data) {
+          setStudentAssociations(associationsResponse.data)
+        }
       } catch (error) {
         console.log('Database not connected - using localStorage mode')
         setDbConnected(false)
@@ -641,7 +917,7 @@ function App() {
           id: p.program_id,
           module: p.module_name || '',
           crossCenter: p.crossCenterRequest?.center_name || '',
-          duration: p.duration_min_hours ? `${p.duration_min_hours}-${p.duration_max_hours}` : '',
+          duration: p.duration_min_hours ? (p.duration_max_hours ? `${p.duration_min_hours}-${p.duration_max_hours}` : `${p.duration_min_hours}`) : '',
           partnerships: p.partners?.map(pt => pt.partner_name).join(', ') || '',
           careerGuidance: p.placements?.map(pl => pl.partner_name).join(', ') || '',
           associations: p.associations?.map(a => a.association_name) || [],
@@ -652,7 +928,7 @@ function App() {
           id: p.program_id,
           module: p.module_name || '',
           crossCenter: '',
-          duration: p.duration_min_hours ? `${p.duration_min_hours}-${p.duration_max_hours}` : '',
+          duration: p.duration_min_hours ? (p.duration_max_hours ? `${p.duration_min_hours}-${p.duration_max_hours}` : `${p.duration_min_hours}`) : '',
           partnerships: p.partners?.map(pt => pt.partner_name).join(', ') || '',
           careerGuidance: p.placements?.map(pl => pl.partner_name).join(', ') || '',
           associations: p.associations?.map(a => a.association_name) || [],
@@ -663,7 +939,7 @@ function App() {
           id: p.program_id,
           module: p.module_name || '',
           crossCenter: p.crossCenterRequest?.center_name || '',
-          duration: p.duration_min_hours ? `${p.duration_min_hours}-${p.duration_max_hours}` : '',
+          duration: p.duration_min_hours ? (p.duration_max_hours ? `${p.duration_min_hours}-${p.duration_max_hours}` : `${p.duration_min_hours}`) : '',
           partnerships: p.partners?.map(pt => pt.partner_name).join(', ') || '',
           careerGuidance: p.placements?.map(pl => pl.partner_name).join(', ') || '',
           associations: p.associations?.map(a => a.association_name) || [],
@@ -858,10 +1134,88 @@ function App() {
   }
 
   // Auto-save a single program when leaving its card
-  // DISABLED - this was causing duplicate records. Use saveAllData instead.
   const autoSaveProgram = async (programId, programType) => {
-    // Do nothing - auto-save is disabled to prevent duplicates
-    return
+    if (!dbConnected || !centerId) return
+    
+    // Find the program to save
+    const programTypeIds = { advanced: 1, steam: 2, crossCenter: 3 }
+    const programTypeId = programTypeIds[programType]
+    
+    let program
+    if (programType === 'advanced') {
+      program = advancedPrograms.find(p => p.id === programId)
+    } else if (programType === 'steam') {
+      program = steamPrograms.find(p => p.id === programId)
+    } else if (programType === 'crossCenter') {
+      program = crossCenterPrograms.find(p => p.id === programId)
+    }
+    
+    if (!program || !program.module?.trim()) return
+    
+    setAutoSavingId(programId)
+    
+    try {
+      const [minHours, maxHours] = (program.duration || '').split('-').map(s => parseFloat(s) || null)
+      const crossCenterIdx = programType === 'crossCenter' && program.crossCenter
+        ? CENTERS.findIndex(c => c.name === program.crossCenter) + 1 
+        : null
+      
+      // Look up organization IDs from names
+      const partnerNames = program.partnerships ? program.partnerships.split(',').map(p => p.trim()).filter(p => p) : []
+      const placementNames = program.careerGuidance ? program.careerGuidance.split(',').map(p => p.trim()).filter(p => p) : []
+      const associationNames = program.associations || []
+      
+      // Find organization IDs by matching names
+      const partnerIds = externalPartners
+        .filter(p => partnerNames.includes(p.partner_name))
+        .map(p => p.partner_id)
+      const placementIds = placementPartners
+        .filter(p => placementNames.includes(p.partner_name))
+        .map(p => p.placement_partner_id)
+      const associationIds = studentAssociations
+        .filter(a => associationNames.includes(a.association_name))
+        .map(a => a.association_id)
+      
+      const programData = {
+        center_id: centerId,
+        program_type_id: programTypeId,
+        module_name: program.module,
+        duration_min_hours: minHours,
+        duration_max_hours: maxHours,
+        description: program.module || '',
+        cross_center_id: crossCenterIdx > 0 ? crossCenterIdx : null,
+        status: program.finalized ? 'approved' : 'draft',
+        partners: partnerIds,
+        placements: placementIds,
+        associations: associationIds,
+      }
+      
+      // Check if it's an existing DB record (small ID) or new local record (timestamp ID)
+      const isDbId = typeof programId === 'number' && programId > 0 && programId < 100000
+      
+      if (isDbId) {
+        // Update existing record
+        await programsApi.update(programId, programData)
+      } else {
+        // Create new record and update local ID
+        const response = await programsApi.create(programData)
+        if (response?.success && response?.data?.program_id) {
+          // Update the local program with the new DB ID
+          const newId = response.data.program_id
+          if (programType === 'advanced') {
+            setAdvancedPrograms(prev => prev.map(p => p.id === programId ? { ...p, id: newId } : p))
+          } else if (programType === 'steam') {
+            setSteamPrograms(prev => prev.map(p => p.id === programId ? { ...p, id: newId } : p))
+          } else if (programType === 'crossCenter') {
+            setCrossCenterPrograms(prev => prev.map(p => p.id === programId ? { ...p, id: newId } : p))
+          }
+        }
+      }
+    } catch (error) {
+      console.error('Auto-save error:', error)
+    } finally {
+      setTimeout(() => setAutoSavingId(null), 500)
+    }
   }
 
   const generateReport = () => {
@@ -1182,6 +1536,7 @@ function App() {
             onUpdate={(id, field, value) => updateProgram(setSteamPrograms, id, field, value)}
             onRemove={(id) => removeProgram(setSteamPrograms, id, 'steam')}
             onCardBlur={(id) => autoSaveProgram(id, 'steam')}
+            onCardSave={(id) => autoSaveProgram(id, 'steam')}
             autoSavingId={autoSavingId}
             title="STEAM Programs" 
             description="Programs that integrate across centers to make COE a STEAM education center. Complement projects at STEAM Hub. Mandatory: Science (S), AI (E), Fine Arts (A), Mathematics (M)."
@@ -1190,6 +1545,9 @@ function App() {
             colorTheme="orange"
             centerPrefix={selectedCenter?.name?.replace(/ (Center|Hub)$/i, '')}
             isFinalized={false}
+            externalPartners={externalPartners}
+            placementPartners={placementPartners}
+            studentAssociations={studentAssociations}
           />
 
           <ProgramSection 
@@ -1198,6 +1556,7 @@ function App() {
             onUpdate={(id, field, value) => updateProgram(setAdvancedPrograms, id, field, value)}
             onRemove={(id) => removeProgram(setAdvancedPrograms, id, 'advanced')}
             onCardBlur={(id) => autoSaveProgram(id, 'advanced')}
+            onCardSave={(id) => autoSaveProgram(id, 'advanced')}
             autoSavingId={autoSavingId}
             title="Advanced Programs" 
             description="Programs that build employment-ready skills in demand in the industry. Not currently conducted by the school. Mandatory for all Centers."
@@ -1206,6 +1565,9 @@ function App() {
             colorTheme="violet"
             centerPrefix={selectedCenter?.name?.replace(/ (Center|Hub)$/i, '')}
             isFinalized={false}
+            externalPartners={externalPartners}
+            placementPartners={placementPartners}
+            studentAssociations={studentAssociations}
           />
 
           <ProgramSection 
@@ -1214,6 +1576,7 @@ function App() {
             onUpdate={(id, field, value) => updateProgram(setCrossCenterPrograms, id, field, value)}
             onRemove={(id) => removeProgram(setCrossCenterPrograms, id, 'crossCenter')}
             onCardBlur={(id) => autoSaveProgram(id, 'crossCenter')}
+            onCardSave={(id) => autoSaveProgram(id, 'crossCenter')}
             autoSavingId={autoSavingId}
             title="Cross Center Programs" 
             description="Programs requested from other centers to eliminate duplication across COE. Center consultants incorporate these within their specific scope."
@@ -1223,6 +1586,9 @@ function App() {
             showCrossCenter={true}
             centerPrefix={selectedCenter?.name?.replace(/ (Center|Hub)$/i, '')}
             isFinalized={false}
+            externalPartners={externalPartners}
+            placementPartners={placementPartners}
+            studentAssociations={studentAssociations}
           />
         </div>
 

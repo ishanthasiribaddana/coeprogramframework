@@ -62,32 +62,35 @@ router.get('/center/:centerId', async (req, res) => {
       ORDER BY pt.display_order, p.created_at
     `, [centerId]);
 
-    // Get partners, placements, and associations for each program
+    // Get partners, placements, and associations for each program from normalized organizations table
     for (let program of programs) {
-      // External partners
+      // External partners (type_id = 1)
       const [partners] = await pool.query(`
-        SELECT ep.partner_id, ep.partner_name, pp.partnership_type
-        FROM program_partners pp
-        JOIN external_partners ep ON pp.partner_id = ep.partner_id
-        WHERE pp.program_id = ?
+        SELECT o.organization_id as partner_id, o.name as partner_name, ot.type_name as partner_type
+        FROM program_organizations po
+        JOIN organizations o ON po.organization_id = o.organization_id
+        JOIN organization_types ot ON o.type_id = ot.type_id
+        WHERE po.program_id = ? AND o.type_id = 1
       `, [program.program_id]);
       program.partners = partners;
 
-      // Placement partners
+      // Placement partners (type_id = 2)
       const [placements] = await pool.query(`
-        SELECT plp.placement_partner_id, plp.partner_name, plp.industry_sector
-        FROM program_placements ppl
-        JOIN placement_partners plp ON ppl.placement_partner_id = plp.placement_partner_id
-        WHERE ppl.program_id = ?
+        SELECT o.organization_id as partner_id, o.name as partner_name, ot.type_name as partner_type
+        FROM program_organizations po
+        JOIN organizations o ON po.organization_id = o.organization_id
+        JOIN organization_types ot ON o.type_id = ot.type_id
+        WHERE po.program_id = ? AND o.type_id = 2
       `, [program.program_id]);
       program.placements = placements;
 
-      // Student associations
+      // Student associations (type_id = 3)
       const [associations] = await pool.query(`
-        SELECT sa.association_id, sa.association_name, pa.involvement_type
-        FROM program_associations pa
-        JOIN student_associations sa ON pa.association_id = sa.association_id
-        WHERE pa.program_id = ?
+        SELECT o.organization_id as association_id, o.name as association_name, ot.type_name as association_type
+        FROM program_organizations po
+        JOIN organizations o ON po.organization_id = o.organization_id
+        JOIN organization_types ot ON o.type_id = ot.type_id
+        WHERE po.program_id = ? AND o.type_id = 3
       `, [program.program_id]);
       program.associations = associations;
 
@@ -163,26 +166,26 @@ router.post('/', async (req, res) => {
 
     const programId = result.insertId;
 
-    // Insert partners
+    // Insert partners (organization IDs) into program_organizations
     for (const partnerId of partners) {
       await connection.query(
-        'INSERT INTO program_partners (program_id, partner_id) VALUES (?, ?)',
+        'INSERT INTO program_organizations (program_id, organization_id) VALUES (?, ?)',
         [programId, partnerId]
       );
     }
 
-    // Insert placements
+    // Insert placements (organization IDs) into program_organizations
     for (const placementId of placements) {
       await connection.query(
-        'INSERT INTO program_placements (program_id, placement_partner_id) VALUES (?, ?)',
+        'INSERT INTO program_organizations (program_id, organization_id) VALUES (?, ?)',
         [programId, placementId]
       );
     }
 
-    // Insert associations
+    // Insert associations (organization IDs) into program_organizations
     for (const associationId of associations) {
       await connection.query(
-        'INSERT INTO program_associations (program_id, association_id) VALUES (?, ?)',
+        'INSERT INTO program_organizations (program_id, organization_id) VALUES (?, ?)',
         [programId, associationId]
       );
     }
@@ -244,29 +247,29 @@ router.put('/:id', async (req, res) => {
       `, [module_name, description, duration_min_hours, duration_max_hours, id]);
     }
 
-    // Clear and re-insert partners
-    await connection.query('DELETE FROM program_partners WHERE program_id = ?', [id]);
+    // Clear and re-insert all organizations (partners, placements, associations)
+    await connection.query('DELETE FROM program_organizations WHERE program_id = ?', [id]);
+    
+    // Insert partners (organization IDs)
     for (const partnerId of partners) {
       await connection.query(
-        'INSERT INTO program_partners (program_id, partner_id) VALUES (?, ?)',
+        'INSERT INTO program_organizations (program_id, organization_id) VALUES (?, ?)',
         [id, partnerId]
       );
     }
 
-    // Clear and re-insert placements
-    await connection.query('DELETE FROM program_placements WHERE program_id = ?', [id]);
+    // Insert placements (organization IDs)
     for (const placementId of placements) {
       await connection.query(
-        'INSERT INTO program_placements (program_id, placement_partner_id) VALUES (?, ?)',
+        'INSERT INTO program_organizations (program_id, organization_id) VALUES (?, ?)',
         [id, placementId]
       );
     }
 
-    // Clear and re-insert associations
-    await connection.query('DELETE FROM program_associations WHERE program_id = ?', [id]);
+    // Insert associations (organization IDs)
     for (const associationId of associations) {
       await connection.query(
-        'INSERT INTO program_associations (program_id, association_id) VALUES (?, ?)',
+        'INSERT INTO program_organizations (program_id, organization_id) VALUES (?, ?)',
         [id, associationId]
       );
     }

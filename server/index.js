@@ -8,6 +8,7 @@ import centersRouter from './routes/centers.js';
 import programsRouter from './routes/programs.js';
 import partnersRouter from './routes/partners.js';
 import associationsRouter from './routes/associations.js';
+import organizationsRouter from './routes/organizations.js';
 import submissionsRouter from './routes/submissions.js';
 import authRouter from './routes/auth.js';
 
@@ -33,6 +34,7 @@ app.use('/api/centers', centersRouter);
 app.use('/api/programs', programsRouter);
 app.use('/api/partners', partnersRouter);
 app.use('/api/associations', associationsRouter);
+app.use('/api/organizations', organizationsRouter);
 app.use('/api/submissions', submissionsRouter);
 
 // Health check endpoint
