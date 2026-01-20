@@ -2,7 +2,19 @@
 
 ## Last Session: Jan 20, 2026
 
-### Completed (v1.2.0)
+### Completed Versions
+
+#### v1.2.2 (Latest)
+- ✅ "Add as new" option in autocomplete dropdowns when no match found
+- ✅ New organizations saved to database immediately
+- ✅ Organization lists refresh after adding new items
+
+#### v1.2.1
+- ✅ Duration field moved to first row with Module Name
+- ✅ Label shortened to "Dur: (Hrs)"
+- ✅ Duration field right-aligned
+
+#### v1.2.0
 - ✅ Autocomplete for External Partnerships, Placement Partners, Student Associations
 - ✅ Save button in cards (active when all fields filled)
 - ✅ Database normalization: `organizations` + `organization_types` + `program_organizations`
@@ -11,10 +23,10 @@
 - ✅ Dropdown visibility and onBlur fixes
 
 ### Key Files Modified
-- `src/App.jsx` - ProgramCard with autocomplete and Save button
+- `src/App.jsx` - ProgramCard with autocomplete, Save button, add new org
 - `server/routes/programs.js` - Uses program_organizations table
-- `server/routes/organizations.js` - New normalized API
-- `src/api.js` - Updated API endpoints
+- `server/routes/organizations.js` - New normalized API with create endpoints
+- `src/api.js` - Updated API endpoints including create methods
 
 ### Database
 - `organizations` table (merged external/placement/associations)
