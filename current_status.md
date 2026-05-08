@@ -5,6 +5,17 @@
 
 ---
 
+## Port Allocation Registry
+
+**Centralized Port Registry Location:** `C:\Users\User\dev-infrastructure\PORT_ALLOCATION_REGISTRY.md`
+
+This application's ports are documented in the centralized port allocation registry along with all other applications. For complete port information across all environments, refer to:
+- `PORT_ALLOCATION_REGISTRY.md` - Master registry for all applications
+- `LOCAL_PORTS.md` - Local development ports
+- `SERVER_PORTS.md` - Remote server ports
+
+---
+
 ## Deployment Status
 
 ### Production Server (Contabo)
