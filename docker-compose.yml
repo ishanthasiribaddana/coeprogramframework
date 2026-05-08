@@ -1,0 +1,68 @@
+version: '3.8'
+
+services:
+  # Frontend Service (React + Vite built with Nginx)
+  coe-frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: coe-sedf-web
+    ports:
+      - "4030:4030"
+    depends_on:
+      - coe-backend
+    environment:
+      - VITE_API_URL=http://localhost:4031/api
+    networks:
+      - coe-network
+    restart: unless-stopped
+
+  # Backend Service (Node.js API)
+  coe-backend:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    container_name: coe-sedf-api
+    ports:
+      - "4031:4031"
+    depends_on:
+      - mysql
+    environment:
+      - DB_HOST=mysql
+      - DB_PORT=3306
+      - DB_USER=root
+      - DB_PASSWORD=SH3iA7b9kUpd
+      - DB_NAME=coe_program_framework
+      - PORT=4031
+      - NODE_ENV=development
+      - JWT_SECRET=coe_program_framework_secret_key_2024
+      - JWT_EXPIRES_IN=7d
+    networks:
+      - coe-network
+    restart: unless-stopped
+    volumes:
+      - ./server:/app
+      - /app/node_modules
+
+  # MySQL Database Service
+  mysql:
+    image: mysql:8.0
+    container_name: coe-mysql
+    ports:
+      - "3307:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=SH3iA7b9kUpd
+      - MYSQL_DATABASE=coe_program_framework
+      - MYSQL_USER=root
+    networks:
+      - coe-network
+    restart: unless-stopped
+    volumes:
+      - mysql-data:/var/lib/mysql
+
+networks:
+  coe-network:
+    driver: bridge
+
+volumes:
+  mysql-data:

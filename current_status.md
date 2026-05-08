@@ -30,10 +30,44 @@ This application's ports are documented in the centralized port allocation regis
 - **Backend:** Node.js on port 4031 (Docker container: coe-sedf-api)
 - **Frontend:** Nginx on port 4030 (Docker container: coe-sedf-web)
 - **Local Development:** Backend on port 4031, Frontend on port 4030 (Option 1 Compliant)
+- **Local Docker:** Backend on port 4031, Frontend on port 4030, MySQL on port 3307 (100% Production Parity)
 - **Database:** MySQL `coe_program_framework`
 - **Web Server:** Nginx (reverse proxy to Docker containers)
 - **Deployment Method:** Docker Compose (containers created Feb 2026)
 - **Codebase:** v1.2.2 (GitHub commits from Jan 20, 2026)
+
+### Local Docker Development Setup
+
+**Prerequisites:**
+- Docker Desktop installed and running
+- Git repository cloned locally
+
+**Start Local Docker Environment:**
+```bash
+cd f:\Winsurf\OAPF\coe-program-framework
+docker-compose up --build -d
+```
+
+**Access Local Docker Services:**
+- Frontend: http://localhost:4030
+- Backend API: http://localhost:4031/api
+- MySQL: localhost:3307
+
+**Stop Local Docker Environment:**
+```bash
+docker-compose down
+```
+
+**View Container Logs:**
+```bash
+docker-compose logs -f
+```
+
+**Benefits of Local Docker:**
+- 100% parity with production environment
+- Isolated dependencies and configuration
+- Easy cleanup and reproducible builds
+- Ready for CI/CD pipeline integration
 
 ### SSH Access
 ```powershell
