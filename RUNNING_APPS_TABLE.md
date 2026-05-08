@@ -3,7 +3,7 @@
 | # | IP | App Name | Domain | Server Access Method | Local Project Location |
 |---|-----|----------|---------|---------------------|----------------------|
 | 1 | 144.91.123.164 | COE Program Framework | https://coe-sedf.oapf.org/, http://144.91.123.164/coe/ | SSH Key (id_ed25519_temco) | f:\Winsurf\OAPF\coe-program-framework |
-| 2 | 144.91.123.164 | Teacher Attendance System | - | SSH Key (id_ed25519_temco) | - |
+| 2 | 5.189.163.58 | Teacher Attendance System | https://staging.jihltd.com/admin/dashboard | SSH Key (id_ed25519_temco) | F:\NedP |
 | 3 | 144.91.123.164 | Recovery System | http://144.91.123.164/ | SSH Key (id_ed25519_temco) | - |
 | 4 | 144.91.123.164 | Elibrary System | - | SSH Key (id_ed25519_temco) | - |
 | 5 | 144.91.123.164 | Coop-logitec System | - | SSH Key (id_ed25519_temco) | - |
