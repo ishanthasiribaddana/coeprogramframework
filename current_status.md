@@ -1,7 +1,7 @@
 # STEAM Education Development Framework (SEDF) - Progress
 
-## Current Version: v1.1.0
-**Last Updated:** December 21, 2025
+## Current Version: v1.2.2
+**Last Updated:** January 20, 2026
 
 ---
 
@@ -16,11 +16,27 @@
 - **Status:** ✅ Live and Running
 
 ### Server Configuration
-- **Backend:** Node.js on port 3004 (PM2 managed)
+- **Backend:** Node.js on port 4031 (Docker container: coe-sedf-api)
+- **Frontend:** Nginx on port 4030 (Docker container: coe-sedf-web)
 - **Database:** MySQL `coe_program_framework`
-- **Web Server:** Nginx (reverse proxy)
-- **Frontend Build (IP):** `/var/www/coe-program-framework/dist`
-- **Frontend Build (Subdomain):** `/var/www/coe-subdomain/`
+- **Web Server:** Nginx (reverse proxy to Docker containers)
+- **Deployment Method:** Docker Compose (containers created Feb 2026)
+- **Codebase:** v1.2.2 (GitHub commits from Jan 20, 2026)
+
+### SSH Access
+```powershell
+# Key-based auth (preferred)
+ssh -i "C:\Users\User\.ssh\id_ed25519_temco" -o IdentitiesOnly=yes -o StrictHostKeyChecking=no root@144.91.123.164
+```
+
+| Field | Value |
+|-------|-------|
+| **IP** | `144.91.123.164` |
+| **Hostname** | `vmi2971185` (Contabo) |
+| **User** | `root` |
+| **SSH Key** | `C:\Users\User\.ssh\id_ed25519_temco` |
+| **OS** | Ubuntu (Linux) |
+| **Web Server** | Nginx |
 
 ### Credentials
 - **Finalize/Edit PIN:** 0218
@@ -30,6 +46,24 @@
 ---
 
 ## Completed Features
+
+### v1.2.2 (Jan 20, 2026)
+- **"Add as new" option** in autocomplete dropdowns when no match found
+- **New organizations saved** to database immediately
+- **Organization lists refresh** after adding new items
+
+### v1.2.1 (Jan 20, 2026)
+- **Duration field moved** to first row with Module Name
+- **Label shortened** to "Dur: (Hrs)"
+- **Duration field right-aligned**
+
+### v1.2.0 (Jan 20, 2026)
+- **Autocomplete** for External Partnerships, Placement Partners, Student Associations
+- **Save button in cards** (active when all fields filled)
+- **Database normalization**: `organizations` + `organization_types` + `program_organizations`
+- **Backend uses** `program_organizations` junction table
+- **PM2 ecosystem config**: `/server/ecosystem.config.cjs`
+- **Dropdown visibility and onBlur** fixes
 
 ### v1.1.0 (Dec 21, 2025)
 - **Renamed to STEAM Education Development Framework (SEDF)**
@@ -105,22 +139,28 @@
 
 ## Deployment Commands
 
-### Deploy to Contabo
+### Deploy to Contabo (Docker)
 ```bash
 git add -A
-git commit -m "v1.0.x: Description"
+git commit -m "v1.x.x: Description"
 git push origin main
-ssh root@144.91.123.164 "cd /var/www/coe-program-framework && git pull origin main && npm run build"
+ssh -i "C:\Users\User\.ssh\id_ed25519_temco" root@144.91.123.164 "cd /path/to/docker-compose && docker-compose pull && docker-compose up -d --build"
 ```
 
-### Restart Backend
+### Restart Docker Containers
 ```bash
-ssh root@144.91.123.164 "pm2 restart coe-backend"
+ssh -i "C:\Users\User\.ssh\id_ed25519_temco" root@144.91.123.164 "docker restart coe-sedf-api coe-sedf-web"
 ```
 
-### Check Logs
+### Check Docker Logs
 ```bash
-ssh root@144.91.123.164 "pm2 logs coe-backend --lines 50"
+ssh -i "C:\Users\User\.ssh\id_ed25519_temco" root@144.91.123.164 "docker logs coe-sedf-api --tail 50"
+ssh -i "C:\Users\User\.ssh\id_ed25519_temco" root@144.91.123.164 "docker logs coe-sedf-web --tail 50"
+```
+
+### Check Container Status
+```bash
+ssh -i "C:\Users\User\.ssh\id_ed25519_temco" root@144.91.123.164 "docker ps | grep coe-sedf"
 ```
 
 ### Database Query

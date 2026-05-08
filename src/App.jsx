@@ -932,21 +932,9 @@ function App() {
 
   // Load saved data from database or localStorage when center is selected
   const loadCenterData = async (centerIdNum) => {
-    if (!dbConnected) {
-      // Try localStorage fallback
-      const localData = loadFromLocalStorage(centerIdNum)
-      if (localData) {
-        console.log('loadCenterData: Loading from localStorage', localData)
-        setAdvancedPrograms(localData.advanced?.length > 0 ? localData.advanced : [emptyProgram()])
-        setSteamPrograms(localData.steam?.length > 0 ? localData.steam : [emptyProgram()])
-        setCrossCenterPrograms(localData.crossCenter?.length > 0 ? localData.crossCenter : [emptyProgram()])
-        return true
-      }
-      console.log('loadCenterData: No localStorage data')
-      return false
-    }
-    
     setLoading(true)
+    
+    // Always try API first
     try {
       console.log('loadCenterData: Loading center', centerIdNum)
       const response = await programsApi.getByCenter(centerIdNum)
@@ -999,7 +987,17 @@ function App() {
       }
     } catch (error) {
       console.error('Error loading center data:', error)
-      // On error, still try to show empty programs
+      // On API error, try localStorage fallback
+      const localData = loadFromLocalStorage(centerIdNum)
+      if (localData) {
+        console.log('loadCenterData: Falling back to localStorage', localData)
+        setAdvancedPrograms(localData.advanced?.length > 0 ? localData.advanced : [emptyProgram()])
+        setSteamPrograms(localData.steam?.length > 0 ? localData.steam : [emptyProgram()])
+        setCrossCenterPrograms(localData.crossCenter?.length > 0 ? localData.crossCenter : [emptyProgram()])
+        setLoading(false)
+        return true
+      }
+      // No localStorage data either, show empty programs
       setAdvancedPrograms([emptyProgram()])
       setSteamPrograms([emptyProgram()])
       setCrossCenterPrograms([emptyProgram()])

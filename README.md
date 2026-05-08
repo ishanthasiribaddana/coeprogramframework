@@ -94,7 +94,7 @@ npm install
 npm run dev
 ```
 
-Server runs on `http://localhost:3001`
+Server runs on `http://localhost:3004`
 
 ### 3. Frontend Setup
 
@@ -151,7 +151,7 @@ DB_PASSWORD=your_password
 DB_NAME=coe_program_framework
 
 # Server
-PORT=3001
+PORT=3004
 NODE_ENV=development
 
 # JWT
