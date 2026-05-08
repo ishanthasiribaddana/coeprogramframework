@@ -69,6 +69,31 @@ docker-compose logs -f
 - Easy cleanup and reproducible builds
 - Ready for CI/CD pipeline integration
 
+### CI/CD Pipeline Setup
+
+**GitHub Actions Workflow:**
+- Trigger: Git tag push (v*)
+- Location: `.github/workflows/deploy.yml`
+- Process: Build → Package → Transfer → Deploy → Verify
+
+**GitHub Secrets Required:**
+- `PROD_SSH_KEY` - SSH private key for server
+- `PROD_HOST` - 144.91.123.164
+- `PROD_USER` - root
+
+**Deployment Process:**
+1. Build Docker images (frontend + backend)
+2. Save as tarballs
+3. Transfer to production server
+4. Load images and restart containers
+5. Health checks
+
+**Documentation:**
+- `RELEASE_WORKFLOW.md` - Complete release procedure
+- `CI_CD_SETUP.md` - CI/CD setup guide
+
+**Current Status:** CI/CD pipeline configured and ready for first deployment
+
 ### SSH Access
 ```powershell
 # Key-based auth (preferred)

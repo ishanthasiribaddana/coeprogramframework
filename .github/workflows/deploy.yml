@@ -1,0 +1,156 @@
+name: Deploy COE Program Framework to Production
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+env:
+  FRONTEND_IMAGE: coe-frontend
+  BACKEND_IMAGE: coe-backend
+  PROD_HOST: ${{ secrets.PROD_HOST }}
+  PROD_USER: ${{ secrets.PROD_USER }}
+  PROD_PATH: /opt/temco/apps/coe
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Extract version from tag
+        id: version
+        run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Build Frontend
+        run: |
+          echo "Building frontend version v${{ steps.version.outputs.VERSION }}"
+          npm ci
+          npm run build
+          echo "Frontend build complete"
+
+      - name: Build Backend
+        run: |
+          echo "Building backend version v${{ steps.version.outputs.VERSION }}"
+          cd server
+          npm ci --only=production
+          echo "Backend build complete"
+
+      - name: Build Docker images
+        run: |
+          echo "Building Docker images..."
+          # Build frontend image
+          docker build -t ${{ env.FRONTEND_IMAGE }}:${{ steps.version.outputs.VERSION }} -f Dockerfile .
+          
+          # Build backend image
+          cd server
+          docker build -t ${{ env.BACKEND_IMAGE }}:${{ steps.version.outputs.VERSION }} -f Dockerfile .
+          cd ..
+          
+          echo "Docker images built successfully"
+
+      - name: Save Docker images as tarballs
+        run: |
+          echo "Saving Docker images..."
+          docker save ${{ env.FRONTEND_IMAGE }}:${{ steps.version.outputs.VERSION }} -o frontend-${{ steps.version.outputs.VERSION }}.tar
+          docker save ${{ env.BACKEND_IMAGE }}:${{ steps.version.outputs.VERSION }} -o backend-${{ steps.version.outputs.VERSION }}.tar
+          echo "Docker images saved as tarballs"
+
+      - name: Setup SSH
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.PROD_SSH_KEY }}
+
+      - name: Add server to known hosts
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan -H ${{ env.PROD_HOST }} >> ~/.ssh/known_hosts
+
+      - name: Create deployment directory on server
+        run: |
+          ssh ${{ env.PROD_USER }}@${{ env.PROD_HOST }} "sudo mkdir -p ${{ env.PROD_PATH }} && sudo chown -R ${{ env.PROD_USER }}:${{ env.PROD_USER }} ${{ env.PROD_PATH }}"
+
+      - name: Transfer Docker images to server
+        run: |
+          echo "Transferring Docker images to server..."
+          scp frontend-${{ steps.version.outputs.VERSION }}.tar ${{ env.PROD_USER }}@${{ env.PROD_HOST }}:${{ env.PROD_PATH }}/
+          scp backend-${{ steps.version.outputs.VERSION }}.tar ${{ env.PROD_USER }}@${{ env.PROD_HOST }}:${{ env.PROD_PATH }}/
+          echo "Docker images transferred successfully"
+
+      - name: Transfer docker-compose.yml to server
+        run: |
+          echo "Transferring docker-compose.yml to server..."
+          scp docker-compose.yml ${{ env.PROD_USER }}@${{ env.PROD_HOST }}:${{ env.PROD_PATH }}/
+          echo "docker-compose.yml transferred successfully"
+
+      - name: Load Docker images on server
+        run: |
+          echo "Loading Docker images on server..."
+          ssh ${{ env.PROD_USER }}@${{ env.PROD_HOST }} "cd ${{ env.PROD_PATH }} && docker load -i frontend-${{ steps.version.outputs.VERSION }}.tar"
+          ssh ${{ env.PROD_USER }}@${{ env.PROD_HOST }} "cd ${{ env.PROD_PATH }} && docker load -i backend-${{ steps.version.outputs.VERSION }}.tar"
+          echo "Docker images loaded successfully"
+
+      - name: Tag images as latest on server
+        run: |
+          echo "Tagging images as latest..."
+          ssh ${{ env.PROD_USER }}@${{ env.PROD_HOST }} "docker tag ${{ env.FRONTEND_IMAGE }}:${{ steps.version.outputs.VERSION }} ${{ env.FRONTEND_IMAGE }}:latest"
+          ssh ${{ env.PROD_USER }}@${{ env.PROD_HOST }} "docker tag ${{ env.BACKEND_IMAGE }}:${{ steps.version.outputs.VERSION }} ${{ env.BACKEND_IMAGE }}:latest"
+          echo "Images tagged as latest"
+
+      - name: Stop existing containers
+        run: |
+          echo "Stopping existing containers..."
+          ssh ${{ env.PROD_USER }}@${{ env.PROD_HOST }} "cd ${{ env.PROD_PATH }} && docker-compose down || true"
+          echo "Containers stopped"
+
+      - name: Start new containers
+        run: |
+          echo "Starting new containers..."
+          ssh ${{ env.PROD_USER }}@${{ env.PROD_HOST }} "cd ${{ env.PROD_PATH }} && docker-compose up -d"
+          echo "Containers started"
+
+      - name: Clean up tarballs
+        run: |
+          echo "Cleaning up tarballs..."
+          ssh ${{ env.PROD_USER }}@${{ env.PROD_HOST }} "cd ${{ env.PROD_PATH }} && rm -f frontend-${{ steps.version.outputs.VERSION }}.tar backend-${{ steps.version.outputs.VERSION }}.tar"
+          echo "Tarballs cleaned up"
+
+      - name: Health Check - Frontend
+        run: |
+          echo "Checking frontend health..."
+          sleep 10
+          ssh ${{ env.PROD_USER }}@${{ env.PROD_HOST }} "curl -s -o /dev/null -w '%{http_code}' http://localhost:4030/"
+          echo "Frontend health check complete"
+
+      - name: Health Check - Backend
+        run: |
+          echo "Checking backend health..."
+          sleep 5
+          ssh ${{ env.PROD_USER }}@${{ env.PROD_HOST }} "curl -s http://localhost:4031/api"
+          echo "Backend health check complete"
+
+      - name: Verify container status
+        run: |
+          echo "Verifying container status..."
+          ssh ${{ env.PROD_USER }}@${{ env.PROD_HOST }} "docker ps --filter 'name=coe' --format 'table {{.Names}}\t{{.Status}}'"
+          echo "Container status verified"
+
+      - name: Deployment Summary
+        run: |
+          echo "=========================================="
+          echo "DEPLOYMENT SUMMARY"
+          echo "=========================================="
+          echo "Version: v${{ steps.version.outputs.VERSION }}"
+          echo "Frontend: Port 4030"
+          echo "Backend: Port 4031"
+          echo "Server: ${{ env.PROD_HOST }}"
+          echo "=========================================="
