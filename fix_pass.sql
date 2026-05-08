@@ -1,0 +1,2 @@
+SET PASSWORD FOR 'root'@'localhost' = PASSWORD('SH3iA7b9kUpd');
+FLUSH PRIVILEGES;

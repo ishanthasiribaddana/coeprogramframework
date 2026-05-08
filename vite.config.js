@@ -6,4 +6,7 @@ export default defineConfig({
   plugins: [react()],
   // Use / for coe-sedf.oapf.org subdomain, /coe/ for main domain, /coeprogramframework/ for GitHub Pages
   base: process.env.GITHUB_PAGES ? '/coeprogramframework/' : '/',
+  server: {
+    port: 4030,
+  },
 })

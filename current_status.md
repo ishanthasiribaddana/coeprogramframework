@@ -29,6 +29,7 @@ This application's ports are documented in the centralized port allocation regis
 ### Server Configuration
 - **Backend:** Node.js on port 4031 (Docker container: coe-sedf-api)
 - **Frontend:** Nginx on port 4030 (Docker container: coe-sedf-web)
+- **Local Development:** Backend on port 4031, Frontend on port 4030 (Option 1 Compliant)
 - **Database:** MySQL `coe_program_framework`
 - **Web Server:** Nginx (reverse proxy to Docker containers)
 - **Deployment Method:** Docker Compose (containers created Feb 2026)
