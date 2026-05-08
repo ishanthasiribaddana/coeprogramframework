@@ -16,7 +16,6 @@
 | 12 | 109.123.227.166 | TEMCO Finance App | finance.temcobank.com | SSH Key (id_rsa_temco) | F:\TemcoERP\FinanceApp |
 | 13 | 109.123.227.166 | TEMCO Customer Portal | my.temcobank.com | SSH Key (id_rsa_temco) | F:\TemcoERP\customer-portal |
 | 14 | - | Java Institute System | web.javainstitute.org | - | F:\Exon\Java Institute System |
-| 15 | 5.189.163.58 | Java Institute (JIHLTD) | https://staging.jihltd.com/admin/dashboard | SSH Key (id_ed25519_temco) | - |
 
 **Notes:**
 - Server 144.91.123.164: Contabo VPS (COE, Recovery, Education systems)
